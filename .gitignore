@@ -63,6 +63,22 @@ notes/
 TODO.md
 NOTES.md
 
+# ============================================================
+# Local-only files — DO NOT upload to GitHub
+# ============================================================
+
+# Claude Code project-level settings (local permissions, worktrees)
+.claude/
+
+# Local project clones (have their own .git repos)
+flagbet_local/
+gstack/
+
+# Personal documents and coursework
+docs/
+hw_sim.py
+upload_workflow.py
+
 # Generated integration files — run scripts/convert.sh to regenerate locally
 # The scripts/ and integrations/*/README.md files ARE committed; only generated
 # agent/skill files are excluded.
@@ -76,3 +92,4 @@ integrations/windsurf/.windsurfrules
 integrations/openclaw/*
 integrations/qwen/agents/
 !integrations/openclaw/README.md
+.gstack/
