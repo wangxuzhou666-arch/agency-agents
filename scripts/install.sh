@@ -19,6 +19,7 @@
 #   aider        -- Copy CONVENTIONS.md to current directory
 #   windsurf     -- Copy .windsurfrules to current directory
 #   openclaw     -- Copy workspaces to ~/.openclaw/agency-agents/
+#   hermes       -- Copy SOUL.md + skills to ~/.hermes/
 #   qwen         -- Copy SubAgents to ~/.qwen/agents/ (user-wide) or .qwen/agents/ (project)
 #   all          -- Install for all detected tools (default)
 #
@@ -101,7 +102,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen)
+ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw hermes cursor aider windsurf qwen)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -140,6 +141,7 @@ detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cur
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "${HOME}/.config/opencode" ]]; }
 detect_aider()        { command -v aider >/dev/null 2>&1; }
 detect_openclaw()     { command -v openclaw >/dev/null 2>&1 || [[ -d "${HOME}/.openclaw" ]]; }
+detect_hermes()       { command -v hermes >/dev/null 2>&1 || [[ -d "${HOME}/.hermes" ]]; }
 detect_windsurf()     { command -v windsurf >/dev/null 2>&1 || [[ -d "${HOME}/.codeium" ]]; }
 detect_qwen()         { command -v qwen >/dev/null 2>&1 || [[ -d "${HOME}/.qwen" ]]; }
 
@@ -151,6 +153,7 @@ is_detected() {
     gemini-cli)  detect_gemini_cli  ;;
     opencode)    detect_opencode    ;;
     openclaw)    detect_openclaw    ;;
+    hermes)      detect_hermes      ;;
     cursor)      detect_cursor      ;;
     aider)       detect_aider       ;;
     windsurf)    detect_windsurf    ;;
@@ -168,6 +171,7 @@ tool_label() {
     gemini-cli)  printf "%-14s  %s" "Gemini CLI"   "(gemini extension)"      ;;
     opencode)    printf "%-14s  %s" "OpenCode"     "(opencode.ai)"           ;;
     openclaw)    printf "%-14s  %s" "OpenClaw"     "(~/.openclaw)"           ;;
+    hermes)      printf "%-14s  %s" "Hermes"       "(~/.hermes)"             ;;
     cursor)      printf "%-14s  %s" "Cursor"       "(.cursor/rules)"         ;;
     aider)       printf "%-14s  %s" "Aider"        "(CONVENTIONS.md)"        ;;
     windsurf)    printf "%-14s  %s" "Windsurf"     "(.windsurfrules)"        ;;
@@ -408,6 +412,37 @@ install_openclaw() {
   fi
 }
 
+install_hermes() {
+  local src="$INTEGRATIONS/hermes"
+  local dest="${HOME}/.hermes"
+  local count=0
+  [[ -d "$src" ]] || { err "integrations/hermes missing. Run convert.sh --tool hermes first."; return 1; }
+
+  # Install SOUL.md
+  if [[ -f "$src/SOUL.md" ]]; then
+    mkdir -p "$dest"
+    cp "$src/SOUL.md" "$dest/SOUL.md"
+    ok "Hermes: SOUL.md -> $dest/SOUL.md"
+  else
+    warn "Hermes: SOUL.md not found in integrations/hermes/"
+  fi
+
+  # Install skills
+  local skills_src="$src/skills"
+  if [[ -d "$skills_src" ]]; then
+    local dest_skills="$dest/skills/agency-agents"
+    mkdir -p "$dest_skills"
+    local d
+    while IFS= read -r -d '' d; do
+      local name; name="$(basename "$d")"
+      mkdir -p "$dest_skills/$name"
+      cp "$d/SKILL.md" "$dest_skills/$name/SKILL.md"
+      (( count++ )) || true
+    done < <(find "$skills_src" -mindepth 1 -maxdepth 1 -type d -print0)
+    ok "Hermes: $count skills -> $dest_skills"
+  fi
+}
+
 install_cursor() {
   local src="$INTEGRATIONS/cursor/rules"
   local dest="${PWD}/.cursor/rules"
@@ -476,6 +511,7 @@ install_tool() {
     gemini-cli)  install_gemini_cli  ;;
     opencode)    install_opencode    ;;
     openclaw)    install_openclaw    ;;
+    hermes)      install_hermes      ;;
     cursor)      install_cursor      ;;
     aider)       install_aider       ;;
     windsurf)    install_windsurf    ;;

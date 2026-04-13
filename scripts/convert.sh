@@ -17,6 +17,7 @@
 #   aider        — Single CONVENTIONS.md for Aider
 #   windsurf     — Single .windsurfrules for Windsurf
 #   openclaw     — OpenClaw SOUL.md files (openclaw_workspace/<agent>/SOUL.md)
+#   hermes       — Hermes Agent native (SOUL.md + skills/<slug>/SKILL.md)
 #   qwen         — Qwen Code SubAgent files (~/.qwen/agents/*.md)
 #   all          — All tools (default)
 #
@@ -338,6 +339,48 @@ HEREDOC
   fi
 }
 
+convert_hermes() {
+  local file="$1" category="$2"
+  local name description slug outdir outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/hermes/skills/$slug"
+  outfile="$outdir/SKILL.md"
+  mkdir -p "$outdir"
+
+  # Hermes SKILL.md format: rich frontmatter with metadata.hermes block
+  cat > "$outfile" <<HEREDOC
+---
+name: ${slug}
+description: ${description}
+version: 1.0.0
+author: The Agency
+metadata:
+  hermes:
+    tags: [${category}]
+    source: agency-agents
+---
+${body}
+HEREDOC
+}
+
+# Copy SOUL.md into Hermes integration output
+finalize_hermes() {
+  local soul_src="$REPO_ROOT/soul/SOUL.md"
+  local soul_dst="$OUT_DIR/hermes/SOUL.md"
+  if [[ -f "$soul_src" ]]; then
+    mkdir -p "$OUT_DIR/hermes"
+    cp "$soul_src" "$soul_dst"
+    info "Wrote integrations/hermes/SOUL.md"
+  else
+    warn "soul/SOUL.md not found — skipping SOUL.md copy for Hermes"
+  fi
+}
+
 convert_qwen() {
   local file="$1"
   local name description tools slug outfile body
@@ -469,6 +512,7 @@ run_conversions() {
         opencode)    convert_opencode    "$file" ;;
         cursor)      convert_cursor      "$file" ;;
         openclaw)    convert_openclaw    "$file" ;;
+        hermes)      convert_hermes      "$file" "$dir" ;;
         qwen)        convert_qwen        "$file" ;;
         aider)       accumulate_aider    "$file" ;;
         windsurf)    accumulate_windsurf "$file" ;;
@@ -500,7 +544,7 @@ main() {
     esac
   done
 
-  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen" "all")
+  local valid_tools=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "hermes" "qwen" "all")
   local valid=false
   for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
   if ! $valid; then
@@ -519,7 +563,7 @@ main() {
 
   local tools_to_run=()
   if [[ "$tool" == "all" ]]; then
-    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "qwen")
+    tools_to_run=("antigravity" "gemini-cli" "opencode" "cursor" "aider" "windsurf" "openclaw" "hermes" "qwen")
   else
     tools_to_run=("$tool")
   fi
@@ -530,7 +574,7 @@ main() {
 
   if $use_parallel && [[ "$tool" == "all" ]]; then
     # Tools that write to separate dirs can run in parallel; buffer output so each tool's output stays together
-    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw qwen)
+    local parallel_tools=(antigravity gemini-cli opencode cursor openclaw hermes qwen)
     local parallel_out_dir
     parallel_out_dir="$(mktemp -d)"
     info "Converting: ${#parallel_tools[@]}/${n_tools} tools in parallel (output buffered per tool)..."
@@ -581,6 +625,11 @@ HEREDOC
   fi
 
   # Write single-file outputs after accumulation
+  # Hermes: copy SOUL.md into output after skill conversion
+  if [[ "$tool" == "all" || "$tool" == "hermes" ]]; then
+    finalize_hermes
+  fi
+
   if [[ "$tool" == "all" || "$tool" == "aider" ]]; then
     mkdir -p "$OUT_DIR/aider"
     cp "$AIDER_TMP" "$OUT_DIR/aider/CONVENTIONS.md"
