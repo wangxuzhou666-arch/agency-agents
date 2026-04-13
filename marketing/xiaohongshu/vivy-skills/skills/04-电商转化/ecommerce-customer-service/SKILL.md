@@ -1,6 +1,6 @@
 ---
-name: customer-service
-description: Use when handling customer inquiries on Xiaohongshu, responding to product questions, managing complaints and returns, building customer relationships through service, or training for e-commerce customer support excellence
+name: ecommerce-customer-service
+description: Use when handling e-commerce customer inquiries on Xiaohongshu — product questions, order issues, returns/refunds, and building post-purchase loyalty for shop conversions
 ---
 
 # Customer Service (客服技巧)

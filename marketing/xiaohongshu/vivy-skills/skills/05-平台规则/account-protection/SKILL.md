@@ -1,9 +1,9 @@
 ---
-name: account-safety
-description: Use when needing to protect account from hacking, unauthorized access, suspension, or other security threats on Xiaohongshu
+name: account-protection
+description: Use when protecting Xiaohongshu account from hacking, unauthorized access, suspension, or other security threats — covers password/2FA, device management, team access control, breach recovery, and proactive monitoring
 ---
 
-# 账号安全 (Account Safety)
+# 账号保护 (Account Protection)
 
 ## 概述
 
@@ -728,6 +728,8 @@ description: Use when needing to protect account from hacking, unauthorized acce
 - **平台规则：** [compliance](../compliance/SKILL.md) - 合规运营
 - **平台规则：** [appeal-process](../appeal-process/SKILL.md) - 申诉流程
 - **平台规则：** [penalty-avoidance](../penalty-avoidance/SKILL.md) - 违规规避
+- **私域运营：** private-domain - 建立自有渠道作为备份
+- **团队管理：** team-management - 安全管理团队访问权限
 
 ---
 

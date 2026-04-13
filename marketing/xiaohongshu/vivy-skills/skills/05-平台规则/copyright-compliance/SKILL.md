@@ -1,13 +1,13 @@
 ---
-name: copyright
-description: Use when needing to protect original content from infringement, properly use third-party content, or handle copyright disputes on Xiaohongshu
+name: copyright-compliance
+description: Use when protecting original content from infringement, properly using third-party content (images/music/video), handling copyright disputes, or understanding fair use on Xiaohongshu
 ---
 
-# 版权保护 (Copyright Protection)
+# 版权合规 (Copyright Compliance)
 
 ## 概述
 
-**版权保护的核心原则：尊重原创、合法使用、主动保护、依法维权。**
+**版权合规的核心原则：尊重原创、合法使用、主动保护、依法维权。**
 
 小红书高度重视知识产权保护。创作者需要了解版权规则，既保护自己的原创内容不被侵权，也避免侵犯他人版权。版权保护不仅是法律要求，更是创作者生态的基础。
 
@@ -800,8 +800,10 @@ description: Use when needing to protect original content from infringement, pro
 ## 相关技能
 
 - **平台规则：** [compliance](../compliance/SKILL.md) - 合规运营
-- **平台规则：** [account-safety](../account-safety/SKILL.md) - 账号安全
+- **平台规则：** [account-protection](../account-protection/SKILL.md) - 账号保护
 - **内容创作：** [original-content](../../01-内容创作/original-content/SKILL.md) - 原创内容创作
+- **违规处理：** violation-handling - 应对版权侵权投诉
+- **内容审核：** content-review - 发布前版权合规检查
 
 ---
 

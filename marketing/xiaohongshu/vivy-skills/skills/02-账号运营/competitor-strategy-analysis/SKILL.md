@@ -1,6 +1,6 @@
 ---
-name: competitor-analysis
-description: Use when analyzing Xiaohongshu competitors, studying creator strategies, identifying content gaps, or finding market opportunities
+name: competitor-strategy-analysis
+description: Use when studying Xiaohongshu creator strategies, identifying content gaps, or finding market opportunities through qualitative competitor research
 ---
 
 # Competitor Analysis (竞品分析)

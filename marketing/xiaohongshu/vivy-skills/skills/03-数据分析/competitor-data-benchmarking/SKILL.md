@@ -1,6 +1,6 @@
 ---
-name: competitor-analysis
-description: Use when analyzing competing Xiaohongshu accounts, learning from successful creators in your niche, identifying content gaps and differentiation opportunities, benchmarking performance against competitors, or researching competitor strategies to inform your own approach
+name: competitor-data-benchmarking
+description: Use when benchmarking Xiaohongshu account performance against competitors with data — engagement rates, growth velocity, content format analytics, and quantitative gap analysis
 ---
 
 # Competitor Analysis (竞品分析)

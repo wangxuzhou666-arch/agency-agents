@@ -1,6 +1,6 @@
 ---
-name: customer-service
-description: Use when handling customer inquiries, complaints, after-sales issues, or needing to build customer loyalty through exceptional service experiences
+name: community-customer-service
+description: Use when handling community inquiries, complaints, after-sales issues, or building customer loyalty through exceptional service in social interactions
 ---
 
 # 客户服务 (Customer Service)

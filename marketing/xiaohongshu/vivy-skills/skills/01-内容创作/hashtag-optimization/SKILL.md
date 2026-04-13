@@ -237,6 +237,5 @@ For each post, track:
 **REQUIRED**: Use data-analytics (track tag performance)
 
 **Recommended**:
-- **tag-optimization** (account operations tag strategy)
 - **keyword-analysis** (identify high-value keywords)
-- **competitor-analysis** (analyze competitor tags)
+- **competitor-strategy-analysis** (analyze competitor tags)
