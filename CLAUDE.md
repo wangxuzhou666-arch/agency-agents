@@ -4,6 +4,8 @@
 
 根据任务规模选 Tier，不要对所有任务用同一套流程。
 
+> ⏱️ **时间口径**：以下所有时间估计都是**使用 AI（Claude Code）协作完成**的预期耗时，不是手写代码的耗时。
+
 ### Tier 1 — Micro（< 30min，单文件/单函数修改）
 
 ```
@@ -46,16 +48,31 @@ act → /diff → commit
 
 ---
 
+## Agent 自动发现（三层架构）
+
+Agents 已按项目分层部署，Claude Code 自动发现，不需要手动指定：
+
+```
+Tier 1: ~/.claude/agents/         ← 7 个万能 agent，所有项目可用
+Tier 2: <project>/.claude/agents/ ← 按项目精选的专项 agent
+Master: ~/Desktop/agency-agents/  ← 100+ agent 的单一真相源（不直接加载）
+```
+
+**同步方式**：每个项目的 `.claude/agent-config.yaml` 声明需要哪些 agent，运行 `bash scripts/sync-all.sh` 从 master library 复制到项目的 `.claude/agents/`。
+
+**新增 agent 到项目**：编辑项目的 `.claude/agent-config.yaml`，然后运行 `bash ~/Desktop/agency-agents/scripts/sync-agents.sh <project-path>`。
+
+**不要手动往 `~/.claude/agents/` 或 `.claude/agents/` 放文件**——用 sync 脚本管理，保持单一真相源。
+
 ## Agent 选择原则
 
-| 任务类型 | 选哪里 |
+| 任务类型 | 怎么选 |
 |---------|--------|
-| 工程实现 | `engineering/` 下的专项 agent |
-| 产品设计 / 路线图 | `product/` |
-| 安全审计 | `/cso` |
-| 方案设计 / 架构 | `specialized/` 下的 Workflow Architect |
-| 代码审查 | `testing/` 下的 Code Reviewer / Reality Checker |
+| 一般工程 | 自动 — Tier 1 的 Software Architect / Senior Dev / Code Reviewer 覆盖 |
+| 安全审计 | `/cso` 或项目已部署的 Security Engineer |
+| 方案设计 / 架构 | Workflow Architect（Tier 1 自带） |
 | **UI/UX 设计** | **走下方 UI/UX Pipeline（必经 Design Bridge）** |
+| 专项领域 | 项目的 `.claude/agents/` 里已部署的专项 agent |
 | 多领域交叉 | 最多选 3 个并行跑，不要超过 5 个 |
 
 ---
