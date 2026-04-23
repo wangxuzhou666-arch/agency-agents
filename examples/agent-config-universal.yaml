@@ -1,0 +1,14 @@
+# ~/.claude/agent-config.yaml — Universal (user-level)
+# These 7 agents load for ALL projects via ~/.claude/agents/
+# Run: bash ~/Desktop/agency-agents/scripts/sync-agents.sh ~/.claude
+
+include:
+  - engineering/engineering-senior-developer.md
+  - engineering/engineering-code-reviewer.md
+  - engineering/engineering-security-engineer.md
+  - engineering/engineering-devops-automator.md
+  - specialized/specialized-workflow-architect.md
+  - testing/testing-reality-checker.md
+  - product/product-manager.md
+
+categories: []
