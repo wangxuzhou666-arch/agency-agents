@@ -29,6 +29,10 @@ yarn.lock
 
 # Python (if adding scripts)
 __pycache__/
+
+# trending_aggregator runtime artifacts (run outputs, regenerated each run)
+scripts/trending_aggregator/snapshots/
+scripts/trending_aggregator/latest.md
 *.py[cod]
 *$py.class
 *.so
