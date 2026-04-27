@@ -787,6 +787,102 @@ M4 Reddit mining 任务。重点：r/LocalLLaMA + r/AI_Agents 真 thread URL
 
 ---
 
+## 🆕 Lite-X 解锚探索 SKU（2026-04-27 新增）
+
+### 为什么需要解锚
+
+**2026-04-27 首次正式 Lite 实战的元 lesson**：4 个 agent 的输出 80% 都收敛到 AI cheatsheet 主线的子分发优化（高相关 / 低惊喜）。原因是 brief 锚定了「与 AI cheatsheet 协同 ≥8/10 优先」。
+
+**Lite-X 是反向 SKU**：用同 4 平台 agent，但**移除主线锚定**，让 agent 在 Colar 完全没碰过的赛道挖。
+
+### 触发词
+
+`跑下解锚 Lite` / `Money Finder 解锚` / `Lite-X` / `跑下 Money Finder Explore`
+
+### 频率上限
+
+**每月 ≤1 次**（不是每周）—— 执行成本高 + ROI 不确定 + 防 ritual
+
+### Lite-X 与 Lite 的核心差异
+
+| 维度 | Lite（锚定）| Lite-X（解锚）|
+|---|---|---|
+| 找什么 | 已有方向的分发优化 + 红海避坑 | Colar 完全没碰过的新赛道 |
+| 主线锚定 | "与 AI cheatsheet 协同 ≥8/10 优先" | **移除** |
+| 主号反推 | "Colar 在折腾"内容栏目 | **移除** |
+| 复合人设 niche | "留学生+量化+AI agent 创业者" 评分 | **移除** |
+| 弱边界 | 隐含在主线里 | **显式 4 条**（见下）|
+| 新增评分 | - | surprise score (0-10) |
+| Agent 强制 | - | 每个 agent ≥2 条新赛道 idea |
+| 期望产出 | 高相关 / 低惊喜 | 低相关 / 可能高惊喜 |
+
+### Lite-X 弱边界（4 条硬约束，每个 agent prompt 顶部注入）
+
+```
+身份背景：UPenn Systems Eng MS 在读 / Nottingham 本科 Financial Math / F-1 中国公民 / 已上线 AI cheatsheet（不要再围绕它做）
+
+弱边界（必须满足全部 4 条，否则 idea KILL）：
+1. 单人可执行（1 个开发者 / 每周 ≤5h 可起的 MVP）
+2. 1-2 周内能起 MVP（不接受需要 6 个月才出 v1 的方向）
+3. 不需要 license / 不需要硬件 / 不需要团队（排除：医疗 / 律师 / 持牌金融 / 制造业 / 重运营线下）
+4. 留学生身份能用上（信息差 / 跨文化 / .edu 邮箱 / F-1 视角 / 中美双语 / 海外学生 sourcing 任一即可）
+
+mining 硬规则：
+- 必须用 WebSearch + WebFetch 真访问
+- 每条 finding 必须给真实 URL（≥5 个 N）
+- 抓不到 → INSUFFICIENT EVIDENCE 不补造
+- **不要**反推主号 / 不要评 cheatsheet 协同 / 不要"复合人设" niche
+
+surprise score（0-10）评分维度：
+- 距 Colar 已有 portfolio（cheatsheet / Hermes / KS）越远 = 分越高
+- 与 4-27 已 mining 的 idea 重叠 = 分越低
+- 跨赛道（金融科技 / B2B SaaS / 海外华人垂类 / 文娱 / 工具链等）= 加分
+```
+
+### Lite-X 一键启动包
+
+```
+任务：跑 Money Finder Lite-X（解锚探索）。让 4 个平台 agent 找 Colar 完全没碰过的新赛道，不要围着 AI cheatsheet 转。
+
+工作流：
+1. 并行启动 M1-M4（subagent 类型同 Lite）
+2. 每个 agent 注入解锚硬约束（见上方 4 条弱边界）
+3. 每个 agent 强制：≥2 条 surprise score ≥7 的新赛道 idea
+4. 主对话整合 4 份报告 → 输出：
+   - 跨赛道 idea pool（按 surprise score × 弱边界全过 排序）
+   - 每条 idea 的弱边界 4 项验证（全过 ✅ / 部分过 ⚠️ / KILL）
+   - 与 cheatsheet 重叠的 idea 标注「重叠主线」并降权
+   - Mid 档升档建议（哪条值得做付费意愿验证）
+
+期望输出：
+- ≤30min wall time
+- ≥6 条 idea（4 平台 × ≥2 条新赛道，去重后）
+- ≥3 条 surprise score ≥7 + 弱边界全过
+- 重叠 cheatsheet 的 idea 全部标注降权
+
+警告：解锚 Lite-X 默认每月 1 次。如果连续 2 次跑出来都没 surprise ≥7 的 idea，触发 reference_money_finder_workflow 的反 ritual 红线，暂停 Lite-X 至少 60 天。
+
+开始。
+```
+
+### Lite-X 反 yes-man 自检（每次跑完必答）
+
+跑完 Lite-X 必须回答以下问题，写进 latest.md 底部：
+
+1. **本次 surprise score ≥7 的 idea 数量**：__（如果 0 → 报告 INSUFFICIENT，下次 Lite-X 等 60 天）
+2. **本次哪条 idea 你最想 execute**？（必须明确选 1 条，不能"都想"）
+3. **14 天内你会做什么具体动作来验证它**？（不接受"再调研"，必须是动作如"用户访谈 N=5 / 写 landing page / 发小红书测帖"）
+4. **如果 14 天后第 3 问的动作没做** → 触发 ritual 红线，Lite-X 暂停 60 天
+
+### 与 Lite 的协同关系
+
+- Lite-X 是 Lite 的**补集**：Lite 优化已有方向，Lite-X 找新方向
+- 不要同月跑 Lite + Lite-X（决策疲劳 + ritual 风险）
+- 如果 Lite-X 跑出强 idea，下个月可以跑 Lite-X→Mid 升档（hard facts 验证）
+- 如果 Lite-X 连续 2 次 INSUFFICIENT，回归 Lite 节奏
+
+---
+
 ## 🔧 P3 工具评估 4-agent 模板（2026-04-26 流程元评估新增）
 
 适用：**自用 P3 基础设施工具**的 kill / maintain / invest 决策（trending_aggregator 类）。
