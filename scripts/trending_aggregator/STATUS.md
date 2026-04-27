@@ -1,29 +1,35 @@
-# Status: ⏸️ PAUSED
+# Status: ⛔ KILLED
 
-**2026-04-26 · A3 NEXUS 判决：软 kill**
+**2026-04-27 · 26 agent 实战后硬 kill（17 max mode + 4 hard facts F1-F4 + 4 platform mining M1-M4）**
 
-## 触发原因
-1 次实战（2026-04-26）：粗筛 20 → 17 DROP + 1 NO-GO（DeepSeek V4 路由）。Max Mode 17 agent 评审一致结论：raw aggregator 赛道已死两轮（RSS 2013-2018 + Pocket 2017-2025），再投 8h 不会改变结论。
+## 升级判决理由
+2026-04-27 跑完整 26 agent 实战后元 lesson：
+1. **trending top 20 = 注意力市场，不是需求市场** — trending 反映已被报道的事，不反映待解决的需求
+2. **4 Platform Deep Mining (Money Finder) ROI 高 5×** — 同样 15-25min 投入，platform mining 直接命中需求信号，trending → idea 路径多一层噪声
+3. **D1 + A1 + A2 + A3 共识**：trending → idea 路径已被 platform mining 完全替代
 
-## 软 kill 状态
-- ✅ schtasks `TrendingAggregator` 已注销
-- ✅ producthunt 已 disable（403）
-- 🟡 代码 + memory 引用保留（feedback_github_growth_narrative：成长叙事保留）
-- 🟡 30 天观察窗口至 **2026-05-26**
+## 处置
+- ⛔ **不再走完整评审流程**（不再粗筛 → 17 agent → max mode）
+- ⛔ **删除 5/26 review 节点**（30 天观察窗口取消，提前判决）
+- 🟢 **代码保留** — `scripts/trending_aggregator/` 目录不删，作辅助信号源备查（feedback_github_growth_narrative：成长叙事保留）
+- ⛔ **schtasks `TrendingAggregator` 已注销**（2026-04-26 完成）
+- ⛔ **producthunt 已 disable**（403）
+- ⛔ **不再主动维护**
 
-## 升级硬 kill 触发条件
-30 天内 **主动打开 `latest.md` < 3 次** → 升级为硬 kill（删 repo 子目录 + 删 memory 引用 + ARCHIVE.md）
+## 替代方案
+**Money Finder 工作流**（4 Platform Deep Mining）成为新默认 idea 来源入口：
+- 触发词：`Money Finder` / `latest data` / `4 platform mining`
+- 入口文件：`memory/reference_money_finder_workflow.md`
+- discovery_prompt_template.md 已加 4 Platform Deep Mining SKU 为新默认（commit f508f60）
 
-## 复活触发条件
-30 天内 主动跑 ≥1 次粗筛 + 产生 GO 决策（罕见）
+## 历史轨迹
+- 2026-04-26：1 次实战粗筛 20 → 17 DROP + 1 NO-GO，17 agent max mode 评审 → 软 kill
+- 2026-04-27：26 agent 升级评审（含 platform mining 对照）→ 硬 kill
 
-## 期间不做清单（NEXUS 输出）
-1. ❌ 不修破窗（5h 改分区榜 / 改 weight / 加 Reddit 一律不做）
-2. ❌ 不写新方案（niche / watchdog / B 路信号供应商）
-3. ❌ 不再写 brief（这次 2000 字 brief 本身就是 sunk cost rationalization）
-4. ❌ 5/26 不到，不主动看 `latest.md` —— 主动打开就是硬 kill 信号
+## Meta Lesson（跨项目沉淀）
+**P3 工具不仅要 1 战定生死，还要警惕"评估流程本身"成为 sunk cost。**
+17 agent max mode 在 trending 上跑了 2 轮才 KILL，第 2 轮其实是流程仪式化。下次 P3 工具的评估流程升级到 platform mining 直接对照，跳过 trending → idea 这一层。
 
-## Meta Lesson（跨项目）
-**P3 工具的 ROI 必须在第 1 次实战后判定，不是第 N 次。** 这是 AgentEval 之后第 2 个 P3 工具面临 PAUSE。下次第 3 个 P3 工具直接套软 kill SOP，不再走 17 agent 评审。
-
-详见 [feedback_p3_tool_one_battle_sop.md](../../../../../Users/Colar/.claude/projects/c--Users-Colar-Desktop-agency-agents/memory/feedback_p3_tool_one_battle_sop.md)。
+详见：
+- [feedback_p3_tool_one_battle_sop.md](../../../../../Users/Colar/.claude/projects/c--Users-Colar-Desktop-agency-agents/memory/feedback_p3_tool_one_battle_sop.md)
+- [reference_money_finder_workflow.md](../../../../../Users/Colar/.claude/projects/c--Users-Colar-Desktop-agency-agents/memory/reference_money_finder_workflow.md)
