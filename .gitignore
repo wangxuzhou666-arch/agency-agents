@@ -33,6 +33,9 @@ __pycache__/
 # trending_aggregator runtime artifacts (run outputs, regenerated each run)
 scripts/trending_aggregator/snapshots/
 scripts/trending_aggregator/latest.md
+scripts/trending_aggregator/cron.log
+# max mode brief contains user identity + candidate idea evaluations — keep local
+scripts/trending_aggregator/phase0_brief.md
 *.py[cod]
 *$py.class
 *.so

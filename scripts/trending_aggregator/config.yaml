@@ -58,10 +58,10 @@ sources:
     description: "Hacker News（官方 API）"
 
   producthunt:
-    enabled: true
+    enabled: false
     weight: 0.75
     lang: en
-    description: "Product Hunt 今日新品"
+    description: "Product Hunt 今日新品（403 anti-bot，2026-04-26 暂停）"
 
   google_trends_us:
     enabled: true
