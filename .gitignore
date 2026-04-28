@@ -81,6 +81,10 @@ NOTES.md
 flagbet_local/
 gstack/
 
+# Personal business card — contains photo.jpg / email / visa status / etc
+# DO NOT push to public repo
+.business-card/
+
 # Personal documents and coursework
 docs/
 hw_sim.py
