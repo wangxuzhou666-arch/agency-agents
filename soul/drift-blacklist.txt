@@ -1,0 +1,17 @@
+# SOUL drift blacklist — exact-string terms that indicate stale content in SOUL.md.
+# One term per line. Lines starting with # are comments. Exact case-sensitive match.
+# To exempt a term: append "BLACKLIST:<exact term>" line to drift-whitelist.txt
+
+# Deprecated terminology (2026-04-27 cleanup)
+quant finance background
+VC 三问
+KS > FlagBet
+KitchenSurvivor > FlagBet
+FlagBet > agency-agents
+long-term AI startup founder
+trending_aggregator template
+trending_aggregator/discovery_prompt_template
+AGENTS.md
+IDENTITY.md
+
+# Add new terms below as drift cases are discovered

@@ -1,0 +1,8 @@
+# SOUL drift whitelist — exemptions for blacklist terms / missing paths that are intentional.
+# Format (one per line, exact string match):
+#   BLACKLIST:<exact term>     — suppress a blacklist hit
+#   PATH:<exact path>          — suppress a missing-path hit
+#
+# Example:
+#   BLACKLIST:VC 三问
+#   PATH:scripts/legacy/old.md
