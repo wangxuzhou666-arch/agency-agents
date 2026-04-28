@@ -1,24 +1,21 @@
-# 🎭 The Agency: AI Specialists Ready to Transform Your Workflow
+# Colar 助手 (colar-agents)
 
-> **A complete AI agency at your fingertips** - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables.
+> Colar 个人的 Claude Code 工作流框架 —— Tier-based 任务分流 + 三层 agent 自动发现 + Money Finder 等专项 pipeline。
 
-[![GitHub stars](https://img.shields.io/github/stars/msitarzewski/agency-agents?style=social)](https://github.com/msitarzewski/agency-agents)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/msitarzewski)
 
 ---
 
-## 🚀 What Is This?
+## 这是什么
 
-Born from a Reddit thread and months of iteration, **The Agency** is a growing collection of meticulously crafted AI agent personalities. Each agent is:
+这是 Colar 个人维护的 AI agent + workflow 框架，跑在 Claude Code 上。**不是开源协作项目，是单人工作系统**。原型来自社区的 agent collection，但已根据个人工作流大幅改造，加入：
 
-- **🎯 Specialized**: Deep expertise in their domain (not generic prompt templates)
-- **🧠 Personality-Driven**: Unique voice, communication style, and approach
-- **📋 Deliverable-Focused**: Real code, processes, and measurable outcomes
-- **✅ Production-Ready**: Battle-tested workflows and success metrics
+- **Tier 1/2/3 任务分流**：按任务规模选不同的 act/plan/review 节奏，避免对所有任务用同一套流程（详见 [CLAUDE.md](CLAUDE.md)）
+- **三层 agent 自动发现**：master library → 项目专项 → 全局通用，用 sync 脚本管理单一真相源
+- **专项 pipeline**：UI/UX Design Bridge、Money Finder（4 平台真深挖）、Idea Maximum Mode（17 agent 陪审团）等内部代号驱动的工作流
+- **SOUL ↔ Memory 双层人格系统**：稳定 axioms 住 SOUL，易变事实住 Memory，三条护栏防止漂移
 
-**Think of it as**: Assembling your dream team, except they're AI specialists who never sleep, never complain, and always deliver.
+下方的 agent 列表是底层资源池 —— 实际使用时由 Claude Code 按任务自动选 1-5 个组合调用。
 
 ---
 
@@ -437,7 +434,7 @@ We welcome contributions! Here's how you can help:
 
 ### Share Your Success Stories
 
-Have you used these agents successfully? Share your story in the [Discussions](https://github.com/msitarzewski/agency-agents/discussions)!
+Have you used these agents successfully? Share your story in the [Discussions](https://github.com/wangxuzhou666-arch/colar-agents/discussions)!
 
 ---
 
@@ -815,18 +812,13 @@ MIT License - Use freely, commercially or personally. Attribution appreciated bu
 
 ## 🙏 Acknowledgments
 
-What started as a Reddit thread about AI agent specialization has grown into something remarkable — **147 agents across 12 divisions**, supported by a community of contributors from around the world. Every agent in this repo exists because someone cared enough to write it, test it, and share it.
-
-To everyone who has opened a PR, filed an issue, started a Discussion, or simply tried an agent and told us what worked — thank you. You're the reason The Agency keeps getting better.
+底层 agent 池最初 fork 自社区项目 [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents)，感谢原作者和所有贡献 agent 模板的人。本仓库已围绕个人工作流深度改造，agent 选择、组合、调用方式均与上游不同；Tier workflow、Design Bridge pipeline、Money Finder、SOUL/Memory 系统等均为本仓库原创，与上游无关。
 
 ---
 
-## 💬 Community
+## 💬 Issues / Feedback
 
-- **GitHub Discussions**: [Share your success stories](https://github.com/msitarzewski/agency-agents/discussions)
-- **Issues**: [Report bugs or request features](https://github.com/msitarzewski/agency-agents/issues)
-- **Reddit**: Join the conversation on r/ClaudeAI
-- **Twitter/X**: Share with #TheAgency
+- **Issues**: [Report bugs or request features](https://github.com/wangxuzhou666-arch/colar-agents/issues)
 
 ---
 
@@ -842,10 +834,10 @@ To everyone who has opened a PR, filed an issue, started a Discussion, or simply
 
 <div align="center">
 
-**🎭 The Agency: Your AI Dream Team Awaits 🎭**
+**Colar 助手 — 一个人维护的 AI 工作流框架**
 
-[⭐ Star this repo](https://github.com/msitarzewski/agency-agents) • [🍴 Fork it](https://github.com/msitarzewski/agency-agents/fork) • [🐛 Report an issue](https://github.com/msitarzewski/agency-agents/issues) • [❤️ Sponsor](https://github.com/sponsors/msitarzewski)
+[⭐ Star this repo](https://github.com/wangxuzhou666-arch/colar-agents) • [🐛 Report an issue](https://github.com/wangxuzhou666-arch/colar-agents/issues)
 
-Made with ❤️ by the community, for the community
+Maintained by [Colar](https://github.com/wangxuzhou666-arch)
 
 </div>
