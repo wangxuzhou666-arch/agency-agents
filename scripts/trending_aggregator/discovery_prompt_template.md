@@ -951,3 +951,147 @@ A1-A3 并行，A4 接 3 份报告做整合（不做新独立判断）。
 | 2026-04-26 | Maximum | 1（DeepSeek V4 迁移工具） | **0（全砍）** | 17 agent 专家陪审团首跑。粗筛仅 1 条 DIG 候选（低于 3 条门槛但 token 充足继续）。Phase 0 揭示红海 + Humanloop $7.91M 死亡反例；Phase 1 D1 vs D6 出现"当下不动手 vs MVP C concierge"最大分歧；A1 红队 3/10 + 4/10 双 RED FLAG；A2 VC 五问 0/5 全绿（4 红 1 黄），护城河 < 4h 可复制致命；A3 NEXUS NO-GO，建议改推 AI cheatsheet。降级方案：迁移过程自然产生踩坑笔记则 ≤3h 写 1 篇博客（不主动写）。|
 | 2026-04-26 | Maximum（适配版） | n/a（评估对象=工具本身非 idea） | **软 kill** | **17 agent 评审 trending_aggregator 脚本本身**。Phase 0 8 agent 信号源诊断（zhihu 0/20 空转、抖音 weight 不合理、B 站抓错表、X trends 0/20 founder 信号、Reddit 缺位 45min ROI 最高、6:4 中英比应改 3:7、raw aggregator 死两轮 RSS+Pocket、D3 8 候选只 3 真值得）；Phase 1 D1 PAUSE / D2 watchdog / D3 sunk cost rationalization / D4 净维护负值 / D5 niche 重构 / D6 5h 修破窗；A1 红队 5 方案全 ≤5 分（修破窗 3/10 是最强诱饵）；A2 reality check 否决 A1 硬 kill（Q1+Q5 INSUFFICIENT），Hard Floor 软 kill；A3 NEXUS 终判 A2 软 kill PASS。30 分钟动作：注销 schtasks + STATUS.md + memory 引用。30 天 review trigger（< 3 次主动打开 → 硬 kill）。**Meta Lesson: P3 工具 1 战定生死 SOP**（[feedback_p3_tool_one_battle_sop.md](../../../../../Users/Colar/.claude/projects/c--Users-Colar-Desktop-agency-agents/memory/feedback_p3_tool_one_battle_sop.md)），下次第 3 个 P3 工具直接套不再走完整评审。 |
 | 2026-04-27 | Maximum + Hard Facts + Platform Mining（**26 agent 全跑**）| 2（Manus + 国产开源大模型）| **0 GO（Idea 评估层）+ idea pool 20 条**（用户纠偏后输出）| **元 lesson 跑：先跑 17 agent max mode → 4 agent hard facts 核查（78 web tools）→ 4 agent platform mining（61 web tools）。揭示**：(1) trending top 20 = 注意力市场不是需求市场，新闻周期 < 7 天；(2) 17 agent max mode ROI 中等，~30% 输出虚假精度（编 URL、误读 Patronus 63% 数学含义、误读 Nature 30% 准确率为幻觉率、Manus 形式标签 reverse acqui-hire 实为真收购、漏 Genspark 反例、漏 4-27 中国 NDRC unwind 真因）；(3) 4 hard facts agent 修正 8 处虚假精度 + 挖出关键 fact（Manus 4-27 unwind / Anthropic /rewind 已 ship / Langfuse 被 ClickHouse 收 / Qwen3.6 GGUF 跑不了 Ollama）；(4) **4 platform mining ROI 最高**——M1 小红书给具体钩子模板（"$1 一门课 cheatsheet"+ tag ≤10）+ 复合人设稀缺性 8/10；M3 B 站给 6 大小白困惑 + 4 大教程内容真空；M4 Reddit 给 5 个真 r/LocalLLaMA bug thread。**Meta Lesson：M1-M4 比 17 agent 价值高 5×**，trending 仅作辅助信号。**SOP 元改**：默认 SKU 改为 4 Platform Deep Mining（见上方章节），trending → max mode 路径降级为 archive。|
+
+---
+
+## 🆕 Lite Mode v2 Hardening（2026-04-27 落地）
+
+3-agent 讨论（Software Architect + Reality Checker + Behavioral Decision Scientist）后落地的 12 条规则 + 3 个工程优化。**触发词同 Lite，执行规则升级**（旧版用 `跑下 Lite v1` 显式调用）。
+
+### 🔧 工程优化（编排层，主对话执行）
+
+#### E1 — WebFetch 定向抽取
+所有 WebFetch 必须带 `prompt=` 参数。**禁止默认全页 markdown 拉取**（5-10K token / 页 vs 500-1K）。
+```
+WebFetch(url, prompt="只返回前 5 个高赞评论原文 + 发布时间 + 互动数，JSON 格式")
+```
+
+#### E2 — Agent 输出 JSON Schema（不写自由 markdown）
+```json
+{
+  "platform": "xiaohongshu|douyin|bilibili|reddit",
+  "ideas": [
+    {
+      "title": "...",
+      "url_tag": "PRIMARY|SYNDICATED|MARKETING",
+      "url": "https://...",
+      "url_status": "200|404|...",
+      "page_title_first_30": "...",
+      "post_timestamp": "2026-04-XX|UNKNOWN",
+      "raw_quote": "≤40字 用户原话",
+      "evidence_count": 5,
+      "signal_strength": 7,
+      "demand_type": "REAL|ATTENTION_ONLY",
+      "killed_by": null,
+      "seasonal_factor": 1.0
+    }
+  ],
+  "kill_list": [...]
+}
+```
+
+#### E3 — 主对话预搜 batch
+**Lite 启动时主对话先跑 1 轮 WebSearch**（4 平台关键词 batch），把 snippet + URL 整理成 80-line brief 注入 4 agent。
+agent 不再独立 WebSearch（除非 brief 有 gap），只做 WebFetch 深挖。
+**附带修 marketing agent INSUFFICIENT bug**（Xiaohongshu Specialist / Douyin Strategist 工具池不含 WebSearch 不再是问题）。
+
+### 🛡️ 数据真伪规则（D1-D4，注入每个 agent prompt 顶部）
+
+#### D1 — URL 三类源标签强制
+- `[PRIMARY]`：xiaohongshu.com / douyin.com / bilibili.com / reddit.com
+- `[SYNDICATED]`：sohu.com / csdn.net / 知乎转载 / cnblogs.com
+- `[MARKETING]`：27sem.com / wuwuseo.com / 任何 SEO 营销博客
+
+**触发动作**：
+- SYNDICATED → signal_strength × 0.5 自动降权
+- MARKETING → 不进 ideas[] 主表，进 sources_appendix
+- 单平台 PRIMARY <2 条 → 该平台 mining 整体作废重跑
+
+#### D2 — URL 可达性 gate
+每条 URL 必须含 `url_status` (HTTP 状态码) + `page_title_first_30` (页面 title 前 30 字)。
+- 不可达 / 404 / title 空 → 该 idea 自动剔除
+- 同 agent ≥2 条不可达 → **整次 mining KILL**（trending_aggregator 编造 URL 案件已 KILL，不重蹈）
+
+#### D3 — 时间戳硬切线
+每条 idea 必须含 `post_timestamp`，要求 ≥ today - 90d。
+- 早于 90 天 → 不进 trending，标 OUTDATED 进附录
+- 拿不到时间戳 → `post_timestamp: "UNKNOWN"`，signal_strength × 0.7 自动降权
+- **禁止用训练数据估计当现状**（拦截 LLM 用 2024 截止当 2026 现状）
+
+#### D4 — 数字双源验证
+凡硬数字（GMV / 播放量 / 涨粉数 X 万）必须 ≥2 个 PRIMARY 源交叉。
+- 单源数字 → 标 `[UNVERIFIED]` 进 sources_appendix，不进 ideas 主表的市场验证字段
+
+### 🔇 噪声过滤规则（N1-N4，注入每个 agent prompt 顶部）
+
+#### N1 — 敏感黑名单 hard reject
+信号文本/标签命中以下任一立即 **drop（不解释，避免分散注意力）**：
+- 政治：政治 / 习 / 党 / 军演 / 台湾 / 香港 / 新疆 / 西藏 / 涉港 / 涉台 / 涉外
+- 宗教：达赖 / 法轮 / 涉宗教 / 伊斯兰 / 基督教 / 佛教商业化
+- 医疗：中医 / 处方药 / 医美 / 减肥药
+- 金融违规：股票推荐 / 炒币 / 赌博
+
+理由：触发审查/法律风险的期望损失 >> 期望收益。
+
+#### N2 — 流量 vs 需求二分
+仅有"播放量/热搜排名/点赞数"，无以下任一证据 → 标 `demand_type: "ATTENTION_ONLY"`，signal_strength ≤ 2/10：
+- 搜索量增长趋势
+- 评论区"求教程/求链接/怎么做/多少钱"占比 ≥15%
+- 收藏率 ≥ 5%
+- 重复购买/复购话题
+- 知乎/小红书"求助"贴
+
+ATTENTION_ONLY 仅在 idea pool 末尾"弱信号待观察"区出现，不进 top 推荐。
+
+#### N3 — User Memory KILL list 强制对齐
+检查 idea 是否命中（每次跑 Lite 前从 user memory 动态读取最新 KILL list）：
+- AI 副业卖课 / prompt 工程师培训 / ChatGPT 使用教程 / AI 写作变现 / 知识付费搬运
+- AgentEval / trending_aggregator 类聚合工具
+- 通用 PDF→study notes me-too / 通用视频转笔记
+- 双语 AI 接单 / 卖方法论
+- 教材替代 LibGen 清单（已重叠）
+
+命中 → drop + `killed_by: "kill_list_match"` 显式标注。**不允许"换包装重推"**（同语义簇也 drop）。
+
+#### N4 — 季节性衰减折扣
+信号关联词命中：报税 / 春招 / 秋招 / 申请季 / 双 11 / 开学季 / 毕业季 / 考研 / 高考 / 春节红包 → 计算 `days_to_peak_decay`：
+- 衰减系数 = max(0, (30 - days_to_peak_decay) / 30)
+- < 14 天 → drop（窗口已过）
+- ≥ 14 天 → signal_strength × 衰减系数
+
+记入 `seasonal_factor` 字段。
+
+### Lite v2 启动包（替换之前 Lite v1 启动包）
+
+```
+任务：跑 Money Finder Lite v2（hardened）。
+
+方向：[用户当下指定的方向，未指定先问]
+
+主对话执行（编排层）：
+1. 先跑 4 平台 WebSearch batch（关键词参考 4 Platform Mining 章节），整理 snippet brief
+2. 把 brief + 全部 12 条 Hardening 规则（D1-D4 + N1-N4）注入 M1-M4 agent prompt
+3. agent 用 general-purpose 类型（避免 marketing agent 工具池 bug），扮演平台专家
+4. agent 输出严格 JSON schema（E2），WebFetch 必须带 prompt 参数（E1）
+5. 主对话综合 4 份 JSON，按 signal_strength × seasonal_factor × url_tag 降权 排序
+
+期望输出：
+- ≤30min wall time
+- token 节省 ~50%（vs Lite v1）
+- 0 编造 URL（D2 gate）
+- 0 命中 KILL list / 黑名单（N1+N3）
+- ATTENTION_ONLY 信号下沉到附录（N2）
+
+开始。
+```
+
+### Hardening 反 yes-man 自检（每次跑完必答）
+
+跑完 Lite v2 必须报告以下统计：
+1. 4 平台各 PRIMARY / SYNDICATED / MARKETING 各几条
+2. URL 可达性失败率（应 <10%，否则 D2 触发警告）
+3. 命中 KILL list / 黑名单的 idea 数量（show your work）
+4. 季节性衰减后被 drop 的 idea 数
+5. 最终 idea pool 比 Lite v1 减少了多少（预计 30-50%，否则规则没生效）
+
+如果连续 2 次 Lite v2 跑出来这些统计**全为 0**（说明规则没触发任何过滤）→ 反向警告：**规则可能写得太宽**或**搜索源本身已被前置过滤**，需要复审 Hardening 规则本身。
