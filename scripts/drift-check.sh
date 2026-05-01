@@ -43,20 +43,31 @@ if [ -f "$BL_ABS" ]; then
     done < "$BL_ABS"
 fi
 
-# 2. Broken markdown link targets (.md/.py/.sh/.json/.yml)
+# 2. Broken path targets (.md/.py/.sh/.json/.yml)
+#    Scans both: (a) markdown link syntax ](path)  (b) bare filenames (e.g. `feedback_x.md`)
+#    Resolves against: soul/, repo root, AND memory dir (~/.claude/projects/.../memory/)
 TMP_PATHS="$(mktemp 2>/dev/null || echo "/tmp/drift-paths.$$")"
-grep -oE '\]\([^)]+\.(md|py|sh|json|ya?ml)\)' "$SOUL_ABS" 2>/dev/null \
-    | sed -E 's/^\]\(//; s/\)$//' > "$TMP_PATHS"
+{
+    # (a) markdown link form: ](path.ext)
+    grep -oE '\]\([^)]+\.(md|py|sh|json|ya?ml)\)' "$SOUL_ABS" 2>/dev/null \
+        | sed -E 's/^\]\(//; s/\)$//'
+    # (b) bare filename form: word_chars.ext (uses backticks or appears as plain token)
+    grep -oE '[A-Za-z0-9_./-]+\.(md|py|sh|json|ya?ml)\b' "$SOUL_ABS" 2>/dev/null
+} | sort -u > "$TMP_PATHS"
 
 soul_dir="$(dirname "$SOUL_ABS")"
+MEM_DIR="$HOME/.claude/projects/-Users-colar-Desktop-agency-agents/memory"
 while IFS= read -r path || [ -n "$path" ]; do
     [ -z "$path" ] && continue
     case "$path" in
         http*|https*) continue ;;
         /*|[A-Za-z]:[\\/]*) continue ;;
+        ~*) continue ;;
     esac
     is_whitelisted "PATH:$path" && continue
-    if [ ! -e "$soul_dir/$path" ] && [ ! -e "$ROOT/$path" ]; then
+    if [ ! -e "$soul_dir/$path" ] \
+       && [ ! -e "$ROOT/$path" ] \
+       && [ ! -e "$MEM_DIR/$path" ]; then
         HITS+=("MISSING_PATH  $path")
     fi
 done < "$TMP_PATHS"

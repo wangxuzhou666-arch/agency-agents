@@ -6,3 +6,6 @@
 # Example:
 #   BLACKLIST:VC 三问
 #   PATH:scripts/legacy/old.md
+
+# Descriptive placeholder paths (not real file refs)
+PATH:/.claude/projects/.../memory/MEMORY.md
