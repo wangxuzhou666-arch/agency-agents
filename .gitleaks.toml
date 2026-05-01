@@ -1,0 +1,24 @@
+title = "Colar gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "confidential-idea-marker"
+description = "CONFIDENTIAL idea content (SOUL rule: VC 五问全绿后机密)"
+regex = '''(?i)(CONFIDENTIAL\s+MODE|VC[-_ ]?五问.*全绿|confidential[-_ ]idea)'''
+path = '''.*\.(md|txt)$'''
+
+[[rules]]
+id = "private-memory-leak"
+description = "memory 文件被误 add 到 public repo"
+regex = '''(?i)(feedback_credential_handling|feedback_data_privacy|feedback_startup_ideas_confidential)'''
+path = '''.*\.md$'''
+
+[allowlist]
+description = "允许 SOUL 自己引用这些规则名"
+paths = [
+  '''soul/SOUL\.md''',
+  '''CLAUDE\.md''',
+  '''\.gitleaks\.toml''',
+]
