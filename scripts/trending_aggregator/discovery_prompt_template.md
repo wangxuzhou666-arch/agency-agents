@@ -787,6 +787,277 @@ M4 Reddit mining 任务。重点：r/LocalLLaMA + r/AI_Agents 真 thread URL
 
 ---
 
+## 🎯 Mid Mode（4 平台真深挖 + Hard Facts F1-F5，9 agent，2026-04-27 升级）
+
+### 为什么是 Mid
+
+Lite v2 给 idea pool + distribution 钩子（信号层），但**不验证关键 claim 是否真**。Max mode 26 agent 全跑（4-6h）多数情况是仪式化。Mid 是**信号 + 关键事实双层**：
+
+- 4 mining (M1-M4) 输出 idea pool
+- 5 hard facts (F1-F5) 对 idea pool 里**最关键 ≤3 条 claim** 做 web 真查，对齐 VC 五问
+
+**何时升 Mid（不是何时跑 Lite）**：
+- Lite 跑出 ≥1 条 idea 让你**直觉强烈但不敢动手**
+- 准备投入 ≥1 周资源做付费验证之前
+- Lite-X 解锚跑出 surprise score ≥7 的新赛道，要核查"是否真的没人做"
+- **不要每周跑 Mid**（≤2 次/月，Hard Facts agent token 重）
+
+### F1-F5 对齐 VC 五问（2026-04-27 升级）
+
+| Fact agent | 对齐 VC 问 | 核心任务 | subagent_type |
+|---|---|---|---|
+| **F1** | Q1 Market 市场 | 市场规模 / 增长曲线 / 主要玩家收入数据真查 | general-purpose |
+| **F2** | Q5 Demand 真实需求 | 付费意愿信号（charge 数据 / 续费率 / churn）真查 | general-purpose |
+| **F3** | Q3 Moat 护城河 | 技术壁垒 / 数据壁垒 / 网络效应 72h 复刻测试 | testing-agent-red-team-specialist |
+| **F4** | Q4 Executable 可执行 | 监管 / license / API 限制 / 学生身份壁垒真查 | general-purpose |
+| **F5** | Q2 User / JTBD | 目标用户 ICP 真存在 + JTBD 强度（≥3 真用户原话） | product-feedback-synthesizer |
+
+**F5 升级原因**（2026-04-27 commit 3dace4e）：原 4-fact 漏了 Q2 User/JTBD 这条，导致"市场存在 + 需求真 + 没壁垒 + 能执行"全绿但**目标用户画像虚浮**的 idea 蒙混过关。F5 强制每条 idea ≥3 句 Phase 0 / mining 报告里的真用户原话作 JTBD 证据，否则 INSUFFICIENT。
+
+### 硬约束（每个 agent prompt 顶部都注入）
+
+复用 4 Platform Mining 章节的硬约束 + 加 Hard Facts 专属规则：
+
+```
+Hard Facts 专属硬规则：
+- 每条 fact claim 必须 ≥2 个独立 PRIMARY 源交叉验证
+- 单源数字 → 标 [UNVERIFIED]，不进结论主表
+- WebFetch 拿不到 → INSUFFICIENT EVIDENCE，不补造
+- 拒绝引用训练数据当现状（>90 天数据必须重核）
+- 命中 Lite v2 的 D1-D4（URL 三类源 / 可达性 / 时间戳 / 双源数字）+ N1-N4（敏感黑名单 / 流量噪声 / KILL list / 季节性）全套
+```
+
+### F1-F5 完整 prompt 模板
+
+#### F1 — Market 市场真查（VC Q1）
+
+```
+F1 Market 真查任务。对 mining 报告里的 ≤3 条最值得做的 idea，每条做：
+
+1. WebSearch + WebFetch 真查市场规模：
+   - "{idea 关键词} market size 2026" / "{中文} 市场规模 2026"
+   - 行业报告 PRIMARY 源（Gartner / IDC / 36 氪 / 艾瑞）
+2. 主要玩家收入 / 用户量 / 增长曲线（≥2 个 PRIMARY 源交叉）
+3. 12-24 个月增长趋势（trends.google.com + 行业报告对照）
+
+输出（每条 idea）：
+- 市场规模（带 URL 来源）
+- 增长率 + 增长性质（爆发 / 稳定 / 衰退 / 加速衰减）
+- 头部玩家 ≥3 个（含收入 / GMV / 用户量真数据）
+- VC Q1 评分（🟢🟡🔴）+ 理由
+- 拿不到数据 → INSUFFICIENT EVIDENCE 不补造
+
+报告 ≤700 字。
+```
+
+#### F2 — Demand 付费意愿真查（VC Q5）
+
+```
+F2 Demand 真查任务。对 mining 报告里的 ≤3 条最值得做的 idea，每条做：
+
+1. WebSearch 付费产品 charge 数据 / pricing page 真访问
+2. 用户续费率 / churn / NPS（PRIMARY 源：产品官网 / Reddit 用户讨论 / G2 评论）
+3. 主动付费搜索词强度（"{idea} pricing" "{idea} 多少钱" 搜索量）
+4. 现存付费方案的吐槽点（"too expensive" / "not worth" / 评论区原话）
+
+输出（每条 idea）：
+- 现存付费方案 ≥3 个（含具体定价 + URL）
+- 付费用户行为证据（≥3 句 Reddit / 评论原话）
+- VC Q5 评分（🟢🟡🔴）+ 理由
+- 主动付费意愿强 / 中 / 弱 + 理由
+- 拿不到证据 → INSUFFICIENT EVIDENCE
+
+报告 ≤700 字。
+```
+
+#### F3 — Moat 护城河 72h 复刻测试（VC Q3）
+
+```
+F3 Moat 红队任务。对 mining 报告里的 ≤3 条最值得做的 idea，每条做：
+
+红队默认立场：**这 idea 72h 内能被一个 mid-level dev 复刻**，请你证伪我。
+
+1. 技术壁垒：核心算法 / 模型 / 工程量是否公开（GitHub 搜 "{idea} open source"）
+2. 数据壁垒：数据来源是否独占 / 是否能抓 / 是否需要授权
+3. 网络效应：单边 vs 双边市场 / 临界用户量 / 飞轮成立条件
+4. 品牌壁垒：是否需要先发 / 是否需要内容矩阵 / 是否需要 KOL
+5. 监管壁垒：license / 牌照 / 资质要求
+
+每条 idea 输出：
+- 4 类壁垒逐项打分（无 / 弱 / 中 / 强）
+- 复刻成本估算（人天 + 资金）
+- 如果 OpenAI / 大厂 30 天内 ship 同款，idea 还活吗
+- VC Q3 评分（🟢🟡🔴）+ 理由
+- 任意一类是"无壁垒" → 直接红灯，不留情面
+
+报告 ≤800 字。
+```
+
+#### F4 — Executable 可执行真查（VC Q4）
+
+```
+F4 Executable 真查任务。对 mining 报告里的 ≤3 条最值得做的 idea，每条做：
+
+1. 监管约束：license / 资质 / 备案 / 审批要求（中美双查）
+2. API / 平台限制：依赖的 API 是否有 ToS 限制 / 速率限制 / 数据使用限制
+3. F-1 学生身份约束：CPT / OPT / 不能 self-employed 的红线
+4. 资金 / 资源约束：MVP 起步成本（开发 + 服务器 + 数据 + 推广）
+5. 主线冲突：与 P0（毕业 + 实习）+ P2（量化 + 小红书）+ AI cheatsheet 的时间冲突
+
+每条 idea 输出：
+- 5 类约束逐项打分（绿 / 黄 / 红）
+- 留学生身份**红线 trigger**（任一 → 直接砍）
+- 主线冲突评估（每周需投入小时数 vs 当前可支配时间）
+- VC Q4 评分（🟢🟡🔴）+ 理由
+
+报告 ≤700 字。
+```
+
+#### F5 — User / JTBD 真用户证据（VC Q2，2026-04-27 新增）
+
+```
+F5 User/JTBD 真查任务。对 mining 报告里的 ≤3 条最值得做的 idea，每条做：
+
+核心问题：**目标用户画像是真的还是想象的？JTBD 是真痛点还是伪需求？**
+
+1. 从 M1-M4 mining 报告抓出该 idea 相关的 ≥3 句真实用户原话
+2. 如果 mining 报告原话不足 → 补 WebSearch 真访问（小红书评论 / Reddit thread / 知乎回答）
+3. 把原话聚类成 JTBD 陈述（"When [情境]，I want to [行动]，so I can [结果]"）
+4. 评估 ICP（Ideal Customer Profile）真实性：
+   - 年龄 / 职业 / 城市 / 收入 / 决策场景具体化
+   - 该 ICP 在哪个平台密度最高
+   - 该 ICP 的当前替代方案 + 不满
+
+每条 idea 输出：
+- ICP 画像（≥5 个具体维度，带证据）
+- ≥3 个 JTBD 陈述 + 每个 JTBD 引用 ≥2 句真用户原话（含 URL）
+- JTBD underserved 程度（现有方案是否覆盖 / 哪个维度没覆盖）
+- VC Q2 评分（🟢🟡🔴）+ 理由
+- 真用户原话 < 3 句 → INSUFFICIENT EVIDENCE，直接砍
+
+报告 ≤800 字。
+```
+
+### Mid Mode 执行流程
+
+```
+Step 1 — 主对话预搜（E3 优化）
+   ↓ WebSearch batch 4 平台关键词，整理 80-line brief
+Step 2 — Phase A：4 mining (M1-M4) 并行
+   ↓ 输出 idea pool（≥5 条，带 fact base 强度）
+Step 3 — 主对话筛选
+   ↓ 从 idea pool 选 ≤3 条最值得做 hard facts 验证的 idea
+   ↓ （选择标准：fact base 强度 ≥2 + 与主线协同 OR surprise score ≥7）
+Step 4 — Phase B：5 hard facts (F1-F5) 并行
+   ↓ 5 agent 同时对选定 ≤3 条 idea 做 VC 五问真查
+Step 5 — 主对话最终 synthesis
+   ↓ 输出：每条 idea 的 VC 五问颜色矩阵 + GO/NO-GO/PIVOT 判决
+```
+
+### 一键粘贴启动包（Mid Mode）
+
+```
+任务：跑 Money Finder Mid Mode（4 平台真深挖 + Hard Facts F1-F5 对齐 VC 五问）。
+
+方向：[空 → agent 自行从 trending top 20 + 个人方向选 2-3 条 / 或自定义]
+
+工作流：
+
+【Step 1 — 主对话预搜（E3 编排优化）】
+主对话先跑 1 轮 WebSearch batch（4 平台关键词，覆盖：xiaohongshu / douyin / bilibili / reddit），整理 snippet brief（≤80 行）注入 M1-M4。
+
+【Step 2 — Phase A：4 mining 并行】
+并行启动 M1-M4（一条消息内 4 个 Agent tool calls）：
+  M1: marketing-xiaohongshu-specialist（小红书）
+  M2: marketing-douyin-strategist（抖音）
+  M3: marketing-bilibili-content-strategist（B 站）
+  M4: marketing-reddit-community-builder（Reddit）
+
+每个 agent 注入 4 Platform Mining 章节的硬约束 + Lite v2 Hardening D1-D4 + N1-N4 全套规则。
+agent 输出严格 JSON schema（E2），WebFetch 必须带 prompt 参数（E1）。
+
+【Step 3 — 主对话筛选】
+主对话整合 4 份 JSON，按 signal_strength × seasonal_factor × url_tag 降权排序，
+从 idea pool 选 ≤3 条最值得 hard facts 验证的 idea。
+
+筛选标准（满足 ≥2 条）：
+- fact base 强度 ≥2（≥2 个独立 PRIMARY 源）
+- demand_type = REAL（不是 ATTENTION_ONLY）
+- 不在 KILL list（N3）
+- 不命中黑名单（N1）
+- 与主线协同 OR surprise score ≥7
+
+如果筛选后 < 1 条 → 直接报"今天 idea pool 没有值得 hard facts 验证的 idea"，**不为了交付硬挑**。
+
+【Step 4 — Phase B：5 hard facts 并行】
+对选定的 ≤3 条 idea，并行启动 F1-F5（一条消息内 5 个 Agent tool calls）：
+  F1: general-purpose（市场真查，VC Q1）
+  F2: general-purpose（付费意愿真查，VC Q5）
+  F3: testing-agent-red-team-specialist（护城河红队，VC Q3）
+  F4: general-purpose（可执行真查，VC Q4）
+  F5: product-feedback-synthesizer（用户/JTBD 真查，VC Q2，2026-04-27 新增）
+
+每个 agent 注入：
+- 通用硬约束（身份 + P0/P2 优先级 + 不做 wrapper 等）
+- Hard Facts 专属硬规则（≥2 PRIMARY 源 / 拒绝训练数据 / D1-D4 + N1-N4）
+- F1-F5 对应 prompt 模板（见上方章节）
+
+【Step 5 — 主对话最终 synthesis】
+基于 4 份 mining + 5 份 fact 报告，输出：
+
+1. **VC 五问颜色矩阵**（每条 idea 一行）：
+   | Idea | Q1 Market | Q2 User | Q3 Moat | Q4 Exec | Q5 Demand | 判决 |
+   |---|---|---|---|---|---|---|
+   | ... | 🟢🟡🔴 | ... | ... | ... | ... | GO/NO-GO/PIVOT |
+
+2. **每条 idea 的关键证据**（≤3 句话引用最强的 fact）
+
+3. **判决规则**：
+   - 5/5 全绿 → GO（启动 Phase 3 验证资产）
+   - 任一红 → NO-GO（明确说为什么）
+   - 1-2 黄 → PIVOT（指出修正方向）
+   - INSUFFICIENT EVIDENCE → 标 PIVOT 或 PAUSE，给"补什么证据"清单
+
+4. **下一步动作**：
+   - GO 的 idea：14 天内 3 个具体动作（含红灯触发条件）
+   - NO-GO 的 idea：是否值得"留观察 30 天"
+   - PIVOT 的 idea：补证据清单 + 升 Mid 时机
+
+通用规则：
+- 不当 yes-man，敢说"全部 NO-GO"
+- token 充足，单 agent 报告 ≤700-900 字
+- 全程中文输出
+- 每个 Phase 完成后给 ≤3 行进度更新
+
+【Step 6 — 写入历史记录】
+任务结束后，更新模板末尾的"历史调用记录"表格：
+| 日期 | Mode | Mining idea pool 数 | Hard Facts 验证数 | 最终 GO/NO-GO/PIVOT 数 | 备注 |
+
+【Step 7 — Mid → 验证资产升档（可选）】
+如果 Step 5 输出 ≥1 条 GO，问"是否启动 Phase 3 生成验证资产？"
+我说 yes 才跑（参考 Maximum Mode 的 Phase 3）。
+
+期望产出：
+- ≤40min wall time
+- 4 份 mining JSON + 5 份 hard facts 报告 + 主对话 VC 五问矩阵
+- 0 编造 URL / 0 命中 KILL list / 0 训练数据当现状
+
+开始执行 Step 1。
+```
+
+### Mid Mode 反 yes-man 自检（每次跑完必答）
+
+跑完 Mid 必须报告：
+1. Mining idea pool 数 vs 进入 Hard Facts 验证的 idea 数（应有 ≥30% 筛除率）
+2. F1-F5 各自给出 INSUFFICIENT EVIDENCE 的 idea 数
+3. 最终 VC 五问全绿（GO）的 idea 数（**0 是合理结果，不必硬挑**）
+4. 命中 D1-D4 / N1-N4 各规则的次数
+5. **本次 Mid 是否触发了 ritual 风险**：是否在没有"直觉强烈"前提下跑 Mid（自我评估）
+
+如果连续 2 次 Mid 跑出来 GO 数 = 0 且 INSUFFICIENT 数高 → 反向警告：**可能 idea pool 本身质量不够支撑 Mid**，回归 Lite + Lite-X 节奏，3 个月内不再升 Mid。
+
+---
+
 ## 🆕 Lite-X 解锚探索 SKU（2026-04-27 新增）
 
 ### 为什么需要解锚
