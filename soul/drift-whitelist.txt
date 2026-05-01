@@ -9,3 +9,5 @@
 
 # Descriptive placeholder paths (not real file refs)
 PATH:/.claude/projects/.../memory/MEMORY.md
+# Descriptive nouns mentioned in prose (not real file refs)
+PATH:settings.json
