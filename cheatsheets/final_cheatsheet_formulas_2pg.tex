@@ -1,0 +1,312 @@
+% !TEX program = xelatex
+% Final Cheatsheet — 2 页公式精华版（题型 1-10 解题套路 + 必背公式）
+% 配套主 cheatsheet：final_cheatsheet.pdf
+\documentclass[10pt,a4paper]{extarticle}
+
+\usepackage[a4paper,margin=0.5cm,top=0.45cm,bottom=0.45cm]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{xeCJK}
+\usepackage{microtype}
+\usepackage{array}
+\usepackage{booktabs}
+
+% ---------- 中文字体 (macOS) ----------
+\setCJKmainfont[BoldFont={PingFang SC},ItalicFont={STKaiti}]{PingFang SC}
+\setCJKsansfont{PingFang SC}
+\setCJKmonofont{PingFang SC}
+
+% ---------- 排版（充分利用空间）----------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlength{\columnsep}{8pt}
+\linespread{1.08}
+\setlist{nosep,leftmargin=*,topsep=1pt,partopsep=0pt,itemsep=0.8pt}
+\renewcommand{\arraystretch}{1.0}
+
+% ---------- callout 颜色 ----------
+\definecolor{routinebg}{HTML}{E8F5E9}
+\definecolor{routinefr}{HTML}{2E7D32}
+\definecolor{formulabg}{HTML}{FFF8E1}
+\definecolor{formulafr}{HTML}{C77700}
+\definecolor{trapbg}{HTML}{FFEBEE}
+\definecolor{trapfr}{HTML}{C62828}
+\definecolor{commonbg}{HTML}{E3F2FD}
+\definecolor{commonfr}{HTML}{1565C0}
+\definecolor{titlebg}{HTML}{F3E5F5}
+\definecolor{titlefr}{HTML}{6A1B9A}
+\definecolor{headbg}{HTML}{4527A0}
+
+% ---------- box 宏 ----------
+\newtcolorbox{routine}[1][]{enhanced,colback=routinebg,colframe=routinefr,
+  boxrule=0.5pt,arc=2pt,left=4pt,right=4pt,top=3pt,bottom=3pt,
+  fonttitle=\bfseries\normalsize,title={解题套路},#1}
+\newtcolorbox{formula}[1][]{enhanced,colback=formulabg,colframe=formulafr,
+  boxrule=0.5pt,arc=2pt,left=4pt,right=4pt,top=3pt,bottom=3pt,
+  fonttitle=\bfseries\normalsize,title={必背公式},#1}
+\newtcolorbox{trap}[1][]{enhanced,colback=trapbg,colframe=trapfr,
+  boxrule=0.5pt,arc=2pt,left=4pt,right=4pt,top=3pt,bottom=3pt,
+  fonttitle=\bfseries\normalsize,title={易错点 \quad（高频丢分）},#1}
+\newtcolorbox{common}[1][]{enhanced,colback=commonbg,colframe=commonfr,
+  boxrule=0.5pt,arc=2pt,left=4pt,right=4pt,top=3pt,bottom=3pt,
+  fonttitle=\bfseries\normalsize,title={#1}}
+
+\newcommand{\qhead}[2]{%
+  \par\vspace{3pt}%
+  \noindent\colorbox{titlebg}{\parbox{\dimexpr\linewidth-4pt}{%
+    \color{titlefr}\bfseries\large 题型 #1\,:\,#2}}\par\vspace{2pt}}
+
+\newcommand{\banner}[1]{%
+  \noindent\colorbox{headbg}{\parbox{\dimexpr\linewidth-4pt}{%
+    \color{white}\bfseries\large\centering #1\strut}}\par\vspace{4pt}}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% ============================================================
+% Page 1
+% ============================================================
+\banner{ESE 302 Final Cheatsheet · 2 页公式精华版 (P1)\,—\,抽样 \& 分布}
+
+\begin{multicols*}{2}
+
+\qhead{1}{卡方等概率分箱}
+\begin{routine}
+\begin{enumerate}
+\item 写出分段 CDF（带未知常数 $A$）
+\item 用 $F(-\infty)\!=\!0$, $F(+\infty)\!=\!1$, 分段连续 $F(c^-)\!=\!F(c^+)$ 解 $A$
+\item 分段反解 $F^{-1}(u)$
+\item $a_k = F^{-1}(k/n)$；$a_0\!=\!-\infty,\ a_n\!=\!+\infty$
+\item 注意 $k/n$ 落哪段 $\Rightarrow$ 选对应反函数
+\end{enumerate}
+\end{routine}
+\begin{formula}
+$\displaystyle a_k=F^{-1}(k/n),\ k=1,\dots,n-1$\\[2pt]
+\textbf{两个高频反 CDF}：\\
+\quad 左指数 $F(x)=\tfrac{1}{2}e^{2x}\Rightarrow F^{-1}(u)=\tfrac{1}{2}\ln(2u)$\\
+\quad 右尾巴 $F(x)=\tfrac{x+1}{x+2}\Rightarrow F^{-1}(u)=\tfrac{2u-1}{1-u}$
+\end{formula}
+
+\qhead{2}{复合法抽样 (Composition)}
+\begin{routine}
+\begin{enumerate}
+\item 把 $f(x)=\sum p_i f_i(x)$，验 $\sum p_i=1$（$f_i$ 各自归一）
+\item 每个 $f_i$ 单独求 $F_i$ 并反解 $F_i^{-1}$
+\item $R_1$ 落入累积区间 $(0,p_1),(p_1,p_1{+}p_2),\dots$ 选分支 $i$
+\item $R_2$ 在该分支抽 $X=F_i^{-1}(R_2)$
+\end{enumerate}
+\end{routine}
+\begin{formula}
+$\displaystyle \int\!\tfrac{1}{(x+a)^2}\,dx=-\tfrac{1}{x+a}$\\[1pt]
+$\displaystyle \int\!\tfrac{1}{(x+a)^k}\,dx=\tfrac{-1}{(k-1)(x+a)^{k-1}}\ (k\!\neq\!1)$\\[2pt]
+若 $f_i=\dfrac{a_i}{(x+a_i)^2}\Rightarrow X=\dfrac{a_i R_2}{1-R_2}$
+\end{formula}
+
+\qhead{8}{Q-Q Plot + 回归拟合}
+\begin{routine}
+\begin{enumerate}
+\item 数据升序得 $x_{(i)}$
+\item 概率位置 $p_i=(i-0.5)/n$
+\item 理论分位 $q_i=F^{-1}(p_i)$
+\item 画 $(q_i,x_{(i)})$；最小二乘拟合 $y=ax+b$
+\item 斜率 $a\!\approx\!1$、截距 $b\!\approx\!0\Rightarrow$ 数据契合
+\end{enumerate}
+\end{routine}
+\begin{formula}
+\textbf{常见分布反 CDF}（用于 $q_i$）：\\
+\quad 指数（均值 $\mu$）：$F^{-1}(p)=-\mu\ln(1-p)$\\
+\quad 正态：$F^{-1}(p)=\mu+\sigma\Phi^{-1}(p)$\\
+\quad Weibull：$F^{-1}(p)=\lambda[-\ln(1-p)]^{1/k}$\\[2pt]
+$a=\dfrac{n\sum q_i x_{(i)}-\sum q_i\sum x_{(i)}}{n\sum q_i^2-(\sum q_i)^2}$, $b=\bar{x}-a\bar{q}$
+\end{formula}
+
+\columnbreak
+
+\qhead{3}{Acceptance-Rejection (A-R)}
+\begin{routine}
+\begin{enumerate}
+\item $c_{\max}=\max_x f(x)/g(x)$（求导 = 0 找极值，代回）
+\item 接受比 $r(x)=f(x)/[c_{\max}\,g(x)]$（化简掉 $c_{\max}$）
+\item $R_1\!\sim\!U(0,1)\Rightarrow Y=-\ln R_1$（若 $g\!=\!\mathrm{Exp}(1)$）
+\item $R_2\!\sim\!U(0,1)$；若 $R_2\!\le\!r(Y)$ 接受 $X=Y$
+\end{enumerate}
+\end{routine}
+\begin{formula}
+接受概率 $p=1/c_{\max}$；平均尝试 $E[Z]=c_{\max}$\\
+几何分布 $P(Z=z)=(1-p)^{z-1}p$\\
+$P(Z<3)=p+(1-p)p$（前两次任一成功）\\
+Exp(1) 抽样：$Y=-\ln R_1$\\
+Exp 均值 $\mu$：$Y=-\mu\ln R$
+\end{formula}
+
+\qhead{6}{联合 PDF 独立性 + PDE}
+\begin{routine}
+\begin{enumerate}
+\item 套 PDE：$\dfrac{f_X'/f_X}{\alpha}=\dfrac{f_Y'/f_Y}{\beta}=-c$
+\item 立刻得指数族（不要硬解 PDE）
+\item 用约束（如 $E(Y)=1$）反解 $c$
+\item 联合 $f_{X,Y}=f_X\cdot f_Y$
+\end{enumerate}
+\end{routine}
+\begin{formula}
+\textbf{核心结论}（背！）：若 $X,Y$ 独立 $\wedge$ $f_{X,Y}$ 仅依赖 $\alpha x+\beta y$，则
+$$f_X(x)=\alpha c\,e^{-\alpha c x},\quad E(X)=\tfrac{1}{\alpha c}$$
+$$f_Y(y)=\beta c\,e^{-\beta c y},\quad E(Y)=\tfrac{1}{\beta c}$$
+归一化已自带；$E(Y)\!=\!1\Rightarrow c\!=\!1/\beta$
+\end{formula}
+
+\begin{common}{P1 共享 — 抽样工具箱 \& 速查}
+\textbf{反 CDF 抽样}：$X=F^{-1}(R),\ R\!\sim\!U(0,1)$\\
+\textbf{Exp}($\lambda$) 抽样：$Y=-\ln(R)/\lambda$；均值 $\mu$：$Y=-\mu\ln R$\\
+\textbf{二次方程根}：$x=\dfrac{-B\pm\sqrt{B^2-4AC}}{2A}$\\
+\textbf{方差身份}：$\mathrm{Var}(X)=E[X^2]-(E[X])^2$\\
+\textbf{独立和方差}：$\mathrm{Var}(aX{+}bY)=a^2\mathrm{Var}\,X+b^2\mathrm{Var}\,Y$\\
+\textbf{Q-Q 概率位置}：用 $(i\!-\!0.5)/n$ 不是 $i/n$（避免 $\ln 0$）
+\end{common}
+
+\begin{common}{常用积分 \& 分布速查（A-R / MLE 通用）}
+$\displaystyle \int e^{ax}\,dx=\tfrac{e^{ax}}{a}$；$\displaystyle \int xe^{-ax}\,dx=-\tfrac{(ax+1)e^{-ax}}{a^2}$\\[2pt]
+$\displaystyle \int\!\sqrt{x}\,e^{-b\sqrt{x}}\,dx=-\tfrac{2(b^2 x+2b\sqrt{x}+2)\,e^{-b\sqrt{x}}}{b^3}$\\[2pt]
+$\displaystyle \int_0^\infty x^n e^{-ax}\,dx=\tfrac{n!}{a^{n+1}}$（gamma 形式）\\[3pt]
+\textbf{Exp}($\lambda$): $f=\lambda e^{-\lambda x}$，$E\!=\!1/\lambda$，Var $\!=\!1/\lambda^2$\\
+\textbf{Geom}($\gamma$): $p\!=\!(1\!-\!\gamma)^{x-1}\gamma$，$E\!=\!1/\gamma$\\
+\textbf{Poisson}($\lambda$): $p\!=\!\tfrac{e^{-\lambda}\lambda^x}{x!}$，$E\!=\!\mathrm{Var}\!=\!\lambda$\\
+\textbf{Rayleigh}($\alpha$): $f\!=\!\alpha xe^{-\alpha x^2/2}$
+\end{common}
+
+\end{multicols*}
+
+\clearpage
+
+% ============================================================
+% Page 2
+% ============================================================
+\banner{ESE 302 Final Cheatsheet · 2 页公式精华版 (P2)\,—\,排队 \& 估计 \& 检验}
+
+\begin{multicols*}{2}
+
+\qhead{4}{M/M/c 多服务台排队}
+\begin{routine}
+\begin{enumerate}
+\item 利用率 $\rho=\lambda/(c\mu)$，须 $<1$
+\item 算 $P_0$（系统空概率，"客户有得选"）
+\item $P(\text{wait})$ — 教授口径 $P(n>c)$
+\item Little 串联：$W_Q\!=\!L_Q/\lambda$, $W\!=\!W_Q\!+\!1/\mu$, $L\!=\!\lambda W$
+\item 单位统一（$\lambda$ 与 $\mu$ 都按小时或都按分钟）
+\end{enumerate}
+\end{routine}
+\begin{formula}
+$\displaystyle P_0=\Bigg[\sum_{n=0}^{c-1}\frac{(\rho c)^n}{n!}+\frac{(\rho c)^c}{c!(1-\rho)}\Bigg]^{\!-1}$\\[3pt]
+$\displaystyle P(\text{wait})=1-P_0\sum_{n=0}^{c}\frac{(\rho c)^n}{n!}=\frac{\rho(\rho c)^c}{c!(1-\rho)}P_0$\\[3pt]
+$\displaystyle L_Q=\frac{(\rho c)^{c+1}\,P_0}{c\cdot c!(1-\rho)^2}$\\[2pt]
+$P_n = P_0\rho^n\!\cdot\!\begin{cases}c^n/n!,& 0\!\le\!n\!\le\!c\\ c^c/c!,& n\!\ge\!c\end{cases}$
+\end{formula}
+
+\qhead{5}{M/G/1 — Pollaczek-Khinchine}
+\begin{routine}
+\begin{enumerate}
+\item 算 $E[S]$ 和 $E[S^2]$（多段串联：方差独立相加）
+\item $\rho=\lambda E[S]$（不是 $\lambda/\mu$，仅指数时巧合相等）
+\item P-K 直接代入；$W=W_Q+E[S]$
+\end{enumerate}
+\end{routine}
+\begin{formula}
+$\displaystyle L_Q=\frac{\lambda^2 E[S^2]}{2(1-\rho)},\quad W_Q=\frac{\lambda E[S^2]}{2(1-\rho)}$\\[3pt]
+$E[S^2]=\mathrm{Var}(S)+(E[S])^2$\\
+$\mathrm{Var}(S_1\!+\!S_2)=\mathrm{Var}(S_1)\!+\!\mathrm{Var}(S_2)$（独立）\\[2pt]
+\textbf{服务时间速查}：\\
+\quad Exp 均值 $\mu$: $\mathrm{Var}=\mu^2,\ E[S^2]=2\mu^2$\\
+\quad U[a,b]: $E[S]\!=\!\tfrac{a+b}{2},\ \mathrm{Var}\!=\!\tfrac{(b-a)^2}{12}$\\
+\quad 固定 $T$: $\mathrm{Var}=0,\ E[S^2]=T^2$
+\end{formula}
+
+\qhead{9}{Poisson $\chi^2$ 拟合优度}
+\begin{routine}
+\begin{enumerate}
+\item 估均值 $\hat\lambda=\langle X\rangle$（若未给定）
+\item 算 $p_i=e^{-\lambda}\lambda^i/i!$，$E_i=N\cdot p_i$
+\item 合并 $E_i\!<\!5$ 的尾部箱
+\item $\chi^2=\sum (O_i\!-\!E_i)^2/E_i$
+\item $df=k\!-\!1\!-\!r$（估了 $\lambda$ 则 $r\!=\!1$，给定 $r\!=\!0$）
+\end{enumerate}
+\end{routine}
+\begin{formula}
+$\chi^2_{0.05}$ 临界值：\\
+\begin{tabular}{@{}l|cccccc@{}}
+$df$ & 1 & 2 & 3 & 4 & 5 & 6 \\ \midrule
+$\chi^2$ & 3.84 & 5.99 & 7.81 & 9.49 & 11.07 & 12.59
+\end{tabular}\\[2pt]
+$\chi^2 < \chi^2_{0.05,df}\Rightarrow$ 不拒绝 $H_0$\\
+$r$ 速查：Poisson/指数 = 1，正态 = 2，给定 = 0
+\end{formula}
+
+\columnbreak
+
+\qhead{7}{MLE + 矩估计（双估计）}
+\begin{routine}
+\textbf{MLE 速通}（不要对 $\ln L$ 求导）：
+\begin{enumerate}
+\item 直接算 $\dfrac{1}{f}\dfrac{\partial f}{\partial \alpha}$
+\item $\sum_k$ 置零得方程
+\item 解出 $\alpha_{\mathrm{ML}}$
+\end{enumerate}
+\textbf{MoM 速通}：
+\begin{enumerate}
+\item 用题目积分公式算 $E(X)$
+\item 令 $E(X)=\langle X\rangle$
+\item 反解 $\alpha_{\mathrm{SM}}$
+\end{enumerate}
+\end{routine}
+\begin{formula}
+PDF 含 $e^{-\alpha g(x)}\Rightarrow \alpha_{\mathrm{ML}}=\dfrac{1}{\langle g(X)\rangle}$\\[2pt]
+$f(x)=\tfrac{\alpha}{2\sqrt{x}}e^{-\alpha\sqrt{x}}$: $\alpha_{\mathrm{ML}}=\tfrac{1}{\langle\sqrt{X}\rangle}$\\[1pt]
+Rayleigh $f=\alpha x e^{-\alpha x^2/2}$: $\alpha_{\mathrm{ML}}=\tfrac{2n}{\sum X_k^2}$\\[2pt]
+\textbf{两估计可不同}（如 ML=0.333，MoM=0.426，正常）
+\end{formula}
+
+\qhead{10}{p-value (min/max 统计量)}
+\begin{routine}
+\begin{enumerate}
+\item 算 $s_{\mathrm{obs}}=\min$ 或 $\max$
+\item 推 $S$ 分布：min $\Rightarrow P(S\!\ge\!s)\!=\![P(X\!\ge\!s)]^n$；max $\Rightarrow P(S\!\le\!s)\!=\![F(s)]^n$
+\item 离散 $P(X\!\ge\!s)\!=\!1\!-\!F(s\!-\!1)$；连续用 $s$
+\item p-value $<\alpha\Rightarrow$ 拒绝 $H_0$
+\end{enumerate}
+\end{routine}
+\begin{formula}
+\textbf{常见分布 $P(X\!\ge\!s)$}：\\
+\quad Geometric $\gamma$: $(1-\gamma)^{s-1}$（指数 $s\!-\!1$！）\\
+\quad Exp($\lambda$): $e^{-\lambda s}$\\
+\quad U[0,1]: $1-s$\\[2pt]
+含义：在 $H_0$ 真时观测到比当前更极端的概率
+\end{formula}
+
+\begin{common}{P2 共享 — Little's Law \& 独立性}
+\textbf{Little's Law 全家桶}：$L=\lambda W$, $L_Q=\lambda W_Q$, $W=W_Q+E[S]$\\[2pt]
+\textbf{独立和方差}：$\mathrm{Var}(S_1\!+\!S_2)=\mathrm{Var}(S_1)\!+\!\mathrm{Var}(S_2)$\\
+\textbf{方差身份}：$E[S^2]=\mathrm{Var}(S)+(E[S])^2$\\
+\textbf{合并规则}：$\chi^2$ 检验每箱 $E_i\!\ge\!5$，合并后重新数 $k$
+\end{common}
+
+\begin{trap}
+\begin{itemize}
+\item \textbf{M/M/c P(wait)} 教授口径 $P(n{>}c)$，与标准 $P(n{\ge}c)$ 差一项 — 考试按教授求和形式写最稳
+\item \textbf{$E[S^2]\!\neq\!(E[S])^2$}，必先算 Var 再加；M/M/1 是 P-K 特例 $E[S^2]\!=\!2/\mu^2$
+\item \textbf{$c_{\max}\!<\!1$ 必算错}（A-R），求导后取正根 $x>0$
+\item \textbf{复合法 $R_1$ 用累积区间}，不是单独权重；$f_i$ 必须自身积分 $=1$
+\item \textbf{p-value 离散用 $s\!-\!1$，连续用 $s$}；min/max 方向相反
+\item \textbf{自由度差 1}：估了参数扣 1，给定参数不扣
+\item \textbf{$a_0\!=\!-\infty$ 不是 0}（除非定义域显式限制）
+\item \textbf{P(wait) vs $P_0$}：客户"有得选"$\!=\!P_0$ ；"要等"$\!=\!P(\text{wait})$
+\item \textbf{MLE vs MoM 结果不同正常}，不要怀疑算错
+\item \textbf{Q-Q 拟合好坏}看斜率/截距 $\approx 1/0$，不只看 $R^2$
+\end{itemize}
+\end{trap}
+
+\end{multicols*}
+
+\end{document}
