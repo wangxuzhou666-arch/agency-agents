@@ -31,7 +31,7 @@
 
 | Mode | Agent 总数 | 时间 | 适用场景 |
 |------|-----------|------|---------|
-| **🆕 Platform Mining**（推荐默认）| 4 | 15-25min | 每周/双周拿真实需求信号 + idea pool |
+| **🆕 Platform Mining v3**（推荐默认）| 5（4 mining + 1 R1 reality check）| 18-30min | 每周/双周拿真实需求信号 + idea pool（v3 含 R1 评分校准）|
 | **Quick** | 3 | 30min | 每周巡检 trending（仅当不想直接跳过 trending）|
 | **Deep** | 7 | 2-3h | 月度深度 + trending + Phase 0 信息收集 |
 | **Maximum** | 17 | 4-6h | 季度战略复盘 / 重大方向决策（注意 sunk cost gate）|
@@ -1226,9 +1226,16 @@ A1-A3 并行，A4 接 3 份报告做整合（不做新独立判断）。
 
 ---
 
-## 🆕 Lite Mode v2 Hardening（2026-04-27 落地）
+## 🆕 Lite Mode v3 Hardening（2026-04-28 升级，含 R1 Reality Check）
 
-3-agent 讨论（Software Architect + Reality Checker + Behavioral Decision Scientist）后落地的 12 条规则 + 3 个工程优化。**触发词同 Lite，执行规则升级**（旧版用 `跑下 Lite v1` 显式调用）。
+**v3 新增**：1 条 Reality Check 规则（R1）+ 1 个独立 reviewer agent，4→5 agent 总数，时间 15-25min → 18-30min。
+
+**v3 修复的根因**（来自 2026-04-28 实测发现）：
+- v2 的 12 条规则全是 D（数据真伪）+ N（噪声过滤）+ E（工程优化），**0 条评分校准**
+- M1-M4 mining agent 既找 idea 又评分 = 角色冲突 → 评分自我合理化（典型症状：3 条 idea 全 8-9 分）
+- 缺独立 reviewer → surprise/intensity 评分尺度被压缩，无 calibration anchor
+
+**v3 之前**（v2 = 12 规则）：3-agent 讨论（Software Architect + Reality Checker + Behavioral Decision Scientist）后落地的 12 条规则 + 3 个工程优化。**触发词同 Lite，执行规则升级**（旧版用 `跑下 Lite v1` / `跑下 Lite v2` 显式调用）。
 
 ### 🔧 工程优化（编排层，主对话执行）
 
@@ -1333,37 +1340,129 @@ ATTENTION_ONLY 仅在 idea pool 末尾"弱信号待观察"区出现，不进 top
 
 记入 `seasonal_factor` 字段。
 
-### Lite v2 启动包（替换之前 Lite v1 启动包）
+### 🆕 🎯 Reality Check 规则（R1，2026-04-28 v3 新增）
+
+#### R1 — 独立 Reality Check Agent（强制第 5 个 agent）
+
+**角色**：`testing-reality-checker`（Tier 1 全局 agent，默认立场 NEEDS WORK）
+**执行时机**：M1-M4 全部完成后、主对话 synthesis 之前（**串行**，不并行）
+**输入**：4 mining agent 的 ideas[] 全集（JSON schema E2 格式）
+
+**职责**（不重复 mining agent 工作）：
+
+1. **独立重打分** — 对每条 idea 重新评 `surprise` / `intensity` / `signal_strength`，**不引用 mining agent 原分**作为锚（避免 anchoring bias）
+
+2. **扣分理由必须引用规则编号** — 例：
+   - `D2: only 2 PRIMARY sources, score capped at 6`
+   - `D4: 单源数字未 cross-validate, intensity -2`
+   - `N2: ATTENTION_ONLY 但 mining 给 8 分`
+   - `kill_list: 命中 'AI 副业卖课' 同语义簇`
+
+3. **角色冲突诊断（self-rationalization flag）** — 触发任一即标 `true`：
+   - 原分 ≥7 但 evidence_count <3
+   - 原分 ≥7 但全 SYNDICATED 源（D1 应已降权但 mining 没执行）
+   - 原分 ≥7 但 url_status 含 ≥1 个 404
+
+4. **强制评分尺度差异化（防全员 7-9 分）**：
+   - 当输出 ideas[] ≥5 条时：`calibrated_score.surprise` 必须至少 1 条 ≤5
+   - 当输出 ideas[] ≥5 条时：`calibrated_score.intensity` 必须至少 1 条 ≤5
+   - 不足时强制将"证据最弱"的 idea 降到 ≤5（按 evidence_count 升序选）
+
+**JSON schema 扩展（嵌入每条 idea）**：
+
+```json
+{
+  ...原 idea fields (E2)...,
+  "r1_reality_check": {
+    "original_score": {"surprise": 9, "intensity": 9, "signal_strength": 9},
+    "calibrated_score": {"surprise": 6, "intensity": 7, "signal_strength": 6},
+    "delta": {"surprise": -3, "intensity": -2, "signal_strength": -3},
+    "main_deductions": [
+      "D2: only 2 PRIMARY sources",
+      "self_rationalization: original=9 但 evidence_count=2"
+    ],
+    "self_rationalization_flag": true
+  }
+}
+```
+
+**强制 abort / 复审条件**：
+
+- 4 平台所有 idea 重打分后 ≥80% 集中在 7-9 分 → 整次 mining 标 `RECALIBRATION_NEEDED`，**给主对话 warning 但不强制重跑**（用户决定）
+- mining agent 给的 ≥7 分中 ≥50% 被 R1 降到 ≤5 → 该 mining agent 的 prompt 标 `PROMPT_REVIEW_RECOMMENDED`，下次跑前应复审
+- 全部 ideas 的 `self_rationalization_flag` 命中率 ≥40% → 整次 Lite 标 `MINING_PROCESS_COMPROMISED`
+
+**R1 prompt 模板**（注入到 Reality Checker agent）：
 
 ```
-任务：跑 Money Finder Lite v2（hardened）。
+你是独立的 Reality Check reviewer。M1-M4 mining agent 已经输出了 ideas[] 全集（见下方）。
+
+任务：对每条 idea 独立重打分（surprise / intensity / signal_strength），引用 D1-D4 / N1-N4 / kill_list 规则编号给扣分理由。
+
+铁律：
+1. 你不是 mining agent 的同事 —— 你是来挑刺的。默认立场 NEEDS WORK。
+2. 不要引用 mining agent 的原分作为锚 —— 先独立判断再对比。
+3. 强制评分尺度差异化：≥5 条 idea 时 surprise/intensity 各至少 1 条 ≤5 分。
+4. 角色冲突诊断（self_rationalization_flag）：原分 ≥7 但 (evidence_count<3 OR 全 SYNDICATED OR ≥1 个 404) → flag=true
+5. 输出严格 JSON，按上方 r1_reality_check schema 扩展每条 idea。
+
+输入 ideas[]：
+{4 mining agent 输出 JSON 拼接}
+
+输出：
+- 完整 ideas[] 含 r1_reality_check 字段
+- 全局统计：
+  - 总 idea 数
+  - self_rationalization_flag = true 的数量 + 占比
+  - mining agent ≥7 分被 R1 降到 ≤5 的占比（按 mining agent 分桶）
+  - 是否触发 RECALIBRATION_NEEDED / PROMPT_REVIEW_RECOMMENDED / MINING_PROCESS_COMPROMISED
+```
+
+### Lite v3 启动包（替换之前 Lite v2 启动包）
+
+```
+任务：跑 Money Finder Lite v3（hardened，含 R1 Reality Check）。
 
 方向：[用户当下指定的方向，未指定先问]
 
 主对话执行（编排层）：
 1. 先跑 4 平台 WebSearch batch（关键词参考 4 Platform Mining 章节），整理 snippet brief
-2. 把 brief + 全部 12 条 Hardening 规则（D1-D4 + N1-N4）注入 M1-M4 agent prompt
+2. 把 brief + 全部 12 条 v2 Hardening 规则（D1-D4 + N1-N4）注入 M1-M4 agent prompt
 3. agent 用 general-purpose 类型（避免 marketing agent 工具池 bug），扮演平台专家
 4. agent 输出严格 JSON schema（E2），WebFetch 必须带 prompt 参数（E1）
-5. 主对话综合 4 份 JSON，按 signal_strength × seasonal_factor × url_tag 降权 排序
+5. **🆕 v3 新增**：M1-M4 完成后 → 串行调用 testing-reality-checker 跑 R1
+   - 输入：M1-M4 ideas[] 全集
+   - 输出：每条 idea 加 r1_reality_check 字段 + 全局统计
+   - 若触发 RECALIBRATION_NEEDED / MINING_PROCESS_COMPROMISED → 主对话给用户 warning
+6. 主对话综合 4 份 JSON + R1 calibrated_score 排序，
+   按 calibrated.signal_strength × seasonal_factor × url_tag 降权 排序
 
 期望输出：
-- ≤30min wall time
-- token 节省 ~50%（vs Lite v1）
+- ≤30min wall time（v3 比 v2 +3-5min，因 R1 串行）
+- token 节省 ~40%（vs Lite v1，R1 增 ~10% 抵消部分节省）
 - 0 编造 URL（D2 gate）
 - 0 命中 KILL list / 黑名单（N1+N3）
 - ATTENTION_ONLY 信号下沉到附录（N2）
+- **🆕 评分尺度强制差异化**：surprise/intensity 不会全员 7-9 分（R1 calibration）
+- **🆕 self_rationalization_flag** 暴露 mining agent 自我合理化的 idea
 
 开始。
 ```
 
 ### Hardening 反 yes-man 自检（每次跑完必答）
 
-跑完 Lite v2 必须报告以下统计：
+跑完 Lite v3 必须报告以下统计：
 1. 4 平台各 PRIMARY / SYNDICATED / MARKETING 各几条
 2. URL 可达性失败率（应 <10%，否则 D2 触发警告）
 3. 命中 KILL list / 黑名单的 idea 数量（show your work）
 4. 季节性衰减后被 drop 的 idea 数
 5. 最终 idea pool 比 Lite v1 减少了多少（预计 30-50%，否则规则没生效）
+6. **🆕 v3 R1 统计**：
+   - 总 idea 数 + self_rationalization_flag = true 数量与占比
+   - 平均 surprise/intensity delta（R1 calibrated - mining original）
+   - 是否触发 RECALIBRATION_NEEDED / PROMPT_REVIEW_RECOMMENDED / MINING_PROCESS_COMPROMISED
+   - **如果平均 delta 接近 0**（calibrated ≈ original）→ 反向警告：R1 没起作用，可能是 reality-checker prompt 失效或 mining 评分本来就准
 
-如果连续 2 次 Lite v2 跑出来这些统计**全为 0**（说明规则没触发任何过滤）→ 反向警告：**规则可能写得太宽**或**搜索源本身已被前置过滤**，需要复审 Hardening 规则本身。
+如果连续 2 次 Lite v3 跑出来 D/N 统计**全为 0**（说明规则没触发任何过滤）→ 反向警告：**规则可能写得太宽**或**搜索源本身已被前置过滤**，需要复审 Hardening 规则本身。
+
+如果连续 2 次 Lite v3 的 R1 平均 delta 接近 0 → 反向警告：**R1 prompt 可能失效**或**mining agent 评分一致性提升，无需 R1**，需要复审 R1 规则本身。
