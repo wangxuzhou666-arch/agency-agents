@@ -85,6 +85,17 @@ gstack/
 # DO NOT push to public repo
 .business-card/
 
+# Local-only / private overlays — content lives in separate private repos.
+# Workflow: edit in the private repo, deploy here, never commit from here.
+# Any folder/file under these patterns is treated as transient runtime state.
+**/_local/
+**/_private/
+specialized/_*.md
+.claude/agents/_*.md
+
+# Run / scratch artifacts (extraction scripts, intermediate files, etc.)
+output/
+
 # Personal documents and coursework
 docs/
 hw_sim.py
