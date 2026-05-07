@@ -117,7 +117,7 @@ This is the identity layer (SOUL) — **axioms only**. Project workflow lives in
 
 These are stable pointers. The frameworks themselves evolve — read the linked memory file when invoking one, those are the source of truth.
 
-- **战略评估** — VC 五问 + JTBD 底层 OS：see `feedback_vc_structural_thinking.md` + `feedback_jtbd_lens.md`
+- **战略评估 (VC 五问 + JTBD lens + R1 reality check)** — 现住独立 framework 仓 `~/Desktop/colar-memory/frameworks/vc-model/`（MANIFEST 单点指针 + spec/v0.6.md + CHANGELOG）。对话调用：`/vc模型` slash → `idea-vc-critic` agent (CONFIDENTIAL 自动激活)。Memory pointer：`feedback_vc_structural_thinking.md` + `feedback_jtbd_lens.md` + `feedback_vc_model_versioning.md` (axiom only)
 - **社交向 idea 强制基线检查** — 三巨头对比（小红书/抖音/微信）+ 深/广二选一：see `feedback_social_app_baseline_check.md`
 - **Idea 评估默认** Maximum Mode SKU 选择（触发词："max mode"）：see `feedback_idea_evaluation_maximum_mode.md`
 - **任务分流** 五种 agent 协作模式：see `feedback_task_mode_split.md`
