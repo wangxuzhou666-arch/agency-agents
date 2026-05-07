@@ -11,3 +11,6 @@
 PATH:/.claude/projects/.../memory/MEMORY.md
 # Descriptive nouns mentioned in prose (not real file refs)
 PATH:settings.json
+
+# VC 模型 framework spec — 实际在私有 ~/Desktop/colar-memory/frameworks/vc-model/spec/v0.6.md
+PATH:spec/v0.6.md
