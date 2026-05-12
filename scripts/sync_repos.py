@@ -30,7 +30,7 @@ REPOS = [
     {
         "name": "agency-agents",
         "path": AGENCY,
-        "remote_match": "agency-agents",   # 重命名后改成 colar-agents 时同步这里
+        "remote_match": "colar-agents",
         "visibility": "PUBLIC",
         "add_paths": ["soul/", "scripts/", "agents/", "skills/", ".claude/",
                        "CLAUDE.md", "README.md", ".gitattributes", ".gitleaks.toml",
