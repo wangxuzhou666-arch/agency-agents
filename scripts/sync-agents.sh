@@ -2,10 +2,16 @@
 # sync-agents.sh — Sync agent files from master library to project .claude/agents/
 # Usage: ./sync-agents.sh [project-path]  (defaults to current dir)
 # Reads: <project>/.claude/agent-config.yaml
+#
+# Cross-platform: MASTER_LIB is auto-detected from this script's location
+# (assumes scripts/ sits inside agency-agents/). Works on macOS (bash 3.2)
+# and Windows Git Bash / WSL — no bash 4+ features used.
 
 set -uo pipefail
 
-MASTER_LIB="/c/Users/Colar/Desktop/agency-agents"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MASTER_LIB="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 PROJECT="${1:-.}"
 CONFIG="$PROJECT/.claude/agent-config.yaml"
 
@@ -17,17 +23,15 @@ fi
 TARGET="$PROJECT/.claude/agents"
 mkdir -p "$TARGET"
 
-# Track what we sync to report stats
 SYNCED=0
 SKIPPED=0
 ERRORS=0
 
 # Parse YAML without dependencies — simple line-based parser
 MODE=""
-declare -a FILES=()
+FILES=()
 
 while IFS= read -r line || [[ -n "$line" ]]; do
-  # Strip comments and trailing whitespace
   line="${line%%#*}"
   line="${line%"${line##*[![:space:]]}"}"
   [[ -z "$line" ]] && continue
@@ -53,13 +57,25 @@ while IFS= read -r line || [[ -n "$line" ]]; do
       done
     else
       echo "WARN: category '$category' not found in master library"
-      ((ERRORS++))
+      ERRORS=$((ERRORS+1))
     fi
   fi
 done < "$CONFIG"
 
-# Deduplicate
-readarray -t FILES < <(printf '%s\n' "${FILES[@]}" | sort -u)
+# Deduplicate (bash 3.2 compatible — no readarray)
+if [[ ${#FILES[@]} -gt 0 ]]; then
+  DEDUPED=()
+  while IFS= read -r rel; do
+    DEDUPED+=("$rel")
+  done < <(printf '%s\n' "${FILES[@]}" | sort -u)
+  FILES=("${DEDUPED[@]}")
+fi
+
+# Build expected-basename newline list for stale detection (bash 3.2 compatible)
+EXPECTED_LIST=""
+for rel in "${FILES[@]}"; do
+  EXPECTED_LIST="$EXPECTED_LIST$(basename "$rel")"$'\n'
+done
 
 # Sync files
 for rel in "${FILES[@]}"; do
@@ -67,20 +83,33 @@ for rel in "${FILES[@]}"; do
   dest="$TARGET/$(basename "$rel")"
 
   if [[ ! -f "$src" ]]; then
-    echo "WARN: $rel not found"
-    ((ERRORS++))
+    echo "WARN: $rel not found in $MASTER_LIB"
+    ERRORS=$((ERRORS+1))
     continue
   fi
 
-  # Skip if destination is identical (idempotent)
   if [[ -f "$dest" ]] && cmp -s "$src" "$dest"; then
-    ((SKIPPED++))
+    SKIPPED=$((SKIPPED+1))
     continue
   fi
 
   cp "$src" "$dest"
-  ((SYNCED++))
+  SYNCED=$((SYNCED+1))
 done
 
-echo "Done: $SYNCED synced, $SKIPPED unchanged, $ERRORS errors"
-echo "Target: $TARGET ($(ls "$TARGET"/*.md 2>/dev/null | wc -l) agents total)"
+# Report stale (file present in target but not in config)
+STALE=0
+if [[ -d "$TARGET" ]]; then
+  for f in "$TARGET"/*.md; do
+    [[ -f "$f" ]] || continue
+    base=$(basename "$f")
+    if ! printf '%s\n' "$EXPECTED_LIST" | grep -Fxq "$base"; then
+      STALE=$((STALE+1))
+    fi
+  done
+fi
+
+total=$(ls "$TARGET"/*.md 2>/dev/null | wc -l | tr -d ' ')
+echo "Done: $SYNCED synced, $SKIPPED unchanged, $ERRORS errors, $STALE stale (in target but not in config)"
+echo "Target: $TARGET ($total agents total)"
+echo "Master: $MASTER_LIB"

@@ -10,7 +10,6 @@ supported agentic coding tools.
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
 - **[OpenCode](#opencode)** — `.md` agent files in `opencode/`
-- **[OpenClaw](#openclaw)** — `SOUL.md` + `AGENTS.md` + `IDENTITY.md` workspaces
 - **[Cursor](#cursor)** — `.mdc` rule files in `cursor/`
 - **[Aider](#aider)** — `CONVENTIONS.md` in `aider/`
 - **[Windsurf](#windsurf)** — `.windsurfrules` in `windsurf/`
@@ -24,7 +23,6 @@ supported agentic coding tools.
 # Install a specific home-scoped tool
 ./scripts/install.sh --tool antigravity
 ./scripts/install.sh --tool copilot
-./scripts/install.sh --tool openclaw
 ./scripts/install.sh --tool claude-code
 
 # Gemini CLI needs generated integration files on a fresh clone
@@ -112,27 +110,6 @@ cd /your/project && /path/to/agency-agents/scripts/install.sh --tool opencode
 ```
 
 See [opencode/README.md](opencode/README.md) for details.
-
----
-
-## OpenClaw
-
-Each agent becomes an OpenClaw workspace containing `SOUL.md`, `AGENTS.md`,
-and `IDENTITY.md`.
-
-Before installing, generate the OpenClaw workspaces:
-
-```bash
-./scripts/convert.sh --tool openclaw
-```
-
-Then install them:
-
-```bash
-./scripts/install.sh --tool openclaw
-```
-
-See [openclaw/README.md](openclaw/README.md) for details.
 
 ---
 
